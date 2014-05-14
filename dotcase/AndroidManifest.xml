@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="org.cyanogenmod.dotcase"
+      android:sharedUserId="android.uid.systemui">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <supports-screens android:anyDensity="true" />
+    <application android:label="Dotcase" android:process="com.android.systemui">
+        <receiver android:name="Autostart">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <service android:name="DotcaseService" android:permission="DotcaseService">
+            <intent-filter>
+                <action android:name="DotcaseService"/>
+            </intent-filter>
+        </service>
+        <activity android:name="DotcaseActivity"
+                  android:label="DotcaseActivity"
+                  android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
+                  android:windowAnimationStyle="@null"
+                  android:windowBackground="@android:color/black"
+                  android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

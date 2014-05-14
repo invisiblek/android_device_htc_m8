@@ -98,6 +98,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     camera.msm8974
 
+# Dotcase
+PRODUCT_PACKAGES += \
+    Dotcase
+
 # Filesystem management tools
 PRODUCT_PACKAGES += \
     make_ext4fs \
