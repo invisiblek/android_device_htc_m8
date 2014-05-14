@@ -21,7 +21,9 @@
 package org.cyanogenmod.dotcase;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.view.View;
@@ -36,6 +38,9 @@ public class DotcaseActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        Settings.Secure.putString(getContentResolver(),
+                                  Settings.Secure.IMMERSIVE_MODE_CONFIRMATIONS,
+                                  "org.cyanogenmod.dotcase");
         getWindow().addFlags(
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
