@@ -18,6 +18,7 @@
         </service>
         <activity android:name="DotcaseActivity"
                   android:label="DotcaseActivity"
+                  android:launchMode="singleInstance"
                   android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
                   android:windowAnimationStyle="@null"
                   android:windowBackground="@android:color/black"
