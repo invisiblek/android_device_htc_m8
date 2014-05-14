@@ -23,16 +23,21 @@ package org.cyanogenmod.dotcase;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.ViewGroup.LayoutParams;
 import android.view.View;
 import android.view.WindowManager;
 
 public class DotcaseActivity extends Activity
 {
-    private static final String TAG = "Dotcase";
-    private static final String COVER_FILE = "/sys/android_touch/cover";
+    private static final String TAG = "DotcaseActivity";
+    private GestureDetectorCompat mDetector;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -54,5 +59,25 @@ public class DotcaseActivity extends Activity
                     View.SYSTEM_UI_FLAG_IMMERSIVE);
         final DrawView drawView = new DrawView(this);
         setContentView(drawView);
+        mDetector = new GestureDetectorCompat(this, new DotcaseGestureListener());
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class DotcaseGestureListener extends GestureDetector.SimpleOnGestureListener
+    {
+        @Override
+        public boolean onDoubleTap(MotionEvent event)
+        {
+            Log.d(TAG, "onDoubleTap event");
+            PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            manager.goToSleep(SystemClock.uptimeMillis());
+            return true;
+        }
+    }
+
 }
