@@ -22,6 +22,9 @@
         <activity android:name="DotcaseActivity"
                   android:label="DotcaseActivity"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:launchMode="singleInstance"
+                  android:windowAnimationStyle="@null"
+                  android:background="@android:color/black"
                   android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
