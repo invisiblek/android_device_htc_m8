@@ -19,13 +19,13 @@
                 <action android:name="CoverObserver"/>
             </intent-filter>
         </service>
-        <activity android:name="DotcaseActivity"
+        <activity 
+                  android:name="DotcaseActivity"
                   android:label="DotcaseActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"
                   android:launchMode="singleInstance"
-                  android:windowAnimationStyle="@null"
-                  android:background="@android:color/black"
-                  android:screenOrientation="portrait">
+                  android:screenOrientation="portrait"
+                  android:theme="@style/DotcaseTheme"
+                  android:windowAnimationStyle="@null">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
