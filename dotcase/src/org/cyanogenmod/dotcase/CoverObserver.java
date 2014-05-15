@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.SystemClock;
 import android.os.UEventObserver;
 import android.util.Log;
 
@@ -42,6 +43,7 @@ class CoverObserver extends UEventObserver {
     private final Context mContext;
     private final WakeLock mWakeLock;
     private final IntentFilter filter = new IntentFilter();
+    private PowerManager manager;
 
     public CoverObserver(Context context) {
         mContext = context;
@@ -62,6 +64,7 @@ class CoverObserver extends UEventObserver {
 
         filter.addAction(Intent.ACTION_SCREEN_ON);
 
+        manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         startObserving(COVER_UEVENT_MATCH);
     }
 
@@ -70,15 +73,18 @@ class CoverObserver extends UEventObserver {
         try {
             int state = Integer.parseInt(event.get("SWITCH_STATE"));
             Log.e(TAG, "Cover " + ((state == 1) ? "closed" : "opened"));
-            updateState(state);
+
+            if (state == 1 && manager.isScreenOn()) {
+                manager.goToSleep(SystemClock.uptimeMillis());
+            } else if (state == 0 && !manager.isScreenOn()) {
+                manager.wakeUp(SystemClock.uptimeMillis());
+            }
+
+            mWakeLock.acquire();
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(state), 0);
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
-    }
-
-    private synchronized final void updateState(int state) {
-        mWakeLock.acquire();
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(state), 0);
     }
 
     private final Handler mHandler = new Handler() {
@@ -87,8 +93,13 @@ class CoverObserver extends UEventObserver {
             if (msg.what == 1) {
                 mContext.getApplicationContext().registerReceiver(receiver, filter);
             } else {
-                mContext.getApplicationContext().unregisterReceiver(receiver);
+                try {
+                    mContext.getApplicationContext().unregisterReceiver(receiver);
+                } catch (Exception ex) {
+                    Log.e(TAG, ex.toString());
+                }
             }
+
             mWakeLock.release();
         }
     };
