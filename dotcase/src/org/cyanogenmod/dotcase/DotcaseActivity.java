@@ -27,10 +27,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.View;
 import android.view.WindowManager;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
 public class DotcaseActivity extends Activity
 {
     private static final String TAG = "Dotcase";
@@ -40,31 +36,18 @@ public class DotcaseActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(COVER_FILE));
-            String value = br.readLine();
-            br.close();
-
-            if(value.equals("1")) {
-                setTheme(R.style.Holo);
-                getWindow().addFlags(
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
-                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-                getWindow().getDecorView().setSystemUiVisibility(
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                            View.SYSTEM_UI_FLAG_FULLSCREEN |
-                            View.SYSTEM_UI_FLAG_IMMERSIVE);
-                final DrawView drawView = new DrawView(this);
-                setContentView(drawView);
-            } else {
-                finish();
-            }
-        } catch (IOException ex) {
-            Log.e(TAG, ex.toString());
-        }
+        getWindow().addFlags(
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_IMMERSIVE);
+        final DrawView drawView = new DrawView(this);
+        setContentView(drawView);
     }
 }
