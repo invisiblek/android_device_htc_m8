@@ -20,6 +20,7 @@
 
 package org.cyanogenmod.dotcase;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -40,6 +41,7 @@ class CoverObserver extends UEventObserver {
 
     private final Context mContext;
     private final WakeLock mWakeLock;
+    private final IntentFilter filter = new IntentFilter();
 
     public CoverObserver(Context context) {
         mContext = context;
@@ -50,7 +52,6 @@ class CoverObserver extends UEventObserver {
 
     public synchronized final void init() {
         char[] buffer = new char[1024];
-
         try {
             BufferedReader closed = new BufferedReader(new FileReader(COVER_STATE_PATH));
             String value = closed.readLine();
@@ -58,6 +59,9 @@ class CoverObserver extends UEventObserver {
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
+
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+
         startObserving(COVER_UEVENT_MATCH);
     }
 
@@ -80,14 +84,29 @@ class CoverObserver extends UEventObserver {
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.e(TAG, "handleMessage: what: " + msg.what);
-            // do some shit here
             if (msg.what == 1) {
-//                registerReceiver(receiver, filter);
+                mContext.getApplicationContext().registerReceiver(receiver, filter);
             } else {
-//                unregisterReceiver(receiver);
+                mContext.getApplicationContext().unregisterReceiver(receiver);
             }
             mWakeLock.release();
+        }
+    };
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent i = new Intent();
+
+            if (intent.getAction() == "android.intent.action.SCREEN_ON") {
+                i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.DotcaseActivity");
+            } else {
+                Log.e(TAG, "Unhandled intent: " + intent.getAction());
+                return;
+            }
+
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(i);
         }
     };
 }
