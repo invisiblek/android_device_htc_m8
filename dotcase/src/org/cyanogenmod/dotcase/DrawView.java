@@ -78,9 +78,9 @@ public class DrawView extends View {
         // 4.34 percents per dot
         int fillDots = (int)Math.round((level*100)/4.34);
 
-        if (level >= .75) {
+        if (level >= .50) {
             paint.setARGB(255, 0, 255, 0);
-        } else if (level >= .30) {
+        } else if (level >= .25) {
             paint.setARGB(255, 255, 165, 0);
         } else {
             paint.setARGB(255, 255, 0, 0);
