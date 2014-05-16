@@ -24,6 +24,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.provider.Settings;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -44,6 +45,10 @@ class CoverObserver extends UEventObserver {
     private final WakeLock mWakeLock;
     private final IntentFilter filter = new IntentFilter();
     private PowerManager manager;
+
+    private int oldBrightness = -1;
+    private int oldBrightnessMode = -1;
+    private boolean needStoreOldBrightness = true;
 
     public CoverObserver(Context context) {
         mContext = context;
@@ -114,6 +119,7 @@ class CoverObserver extends UEventObserver {
             Intent i = new Intent();
 
             if (intent.getAction() == "android.intent.action.SCREEN_ON") {
+                crankUpBrightness();
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.DotcaseActivity");
             } else {
                 return;
@@ -124,7 +130,38 @@ class CoverObserver extends UEventObserver {
         }
     };
 
+    private void crankUpBrightness() {
+        if (needStoreOldBrightness) {
+            try {
+                oldBrightness = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS);
+                oldBrightnessMode = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS_MODE);
+            } catch (Exception ex) {
+                Log.e(TAG, ex.toString());
+            }
+
+            needStoreOldBrightness = false;
+        }
+
+        Settings.System.putInt(mContext.getContentResolver(),
+                Settings.System.SCREEN_BRIGHTNESS_MODE,
+                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+        Settings.System.putInt(mContext.getContentResolver(),
+                Settings.System.SCREEN_BRIGHTNESS, 255);
+    }
+
     private void killActivity() {
+        if (oldBrightnessMode != -1 && oldBrightness != -1 && needStoreOldBrightness == false) {
+            Settings.System.putInt(mContext.getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    oldBrightnessMode);
+            Settings.System.putInt(mContext.getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS,
+                    oldBrightness);
+            needStoreOldBrightness = true;
+        }
+
         try {
             Intent i = new Intent();
             i.setAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");

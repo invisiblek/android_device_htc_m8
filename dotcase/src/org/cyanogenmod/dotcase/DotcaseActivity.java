@@ -42,8 +42,6 @@ public class DotcaseActivity extends Activity
     private static final String TAG = "DotcaseActivity";
     private final IntentFilter filter = new IntentFilter();
     private GestureDetectorCompat mDetector;
-    private int oldBrightness;
-    private int oldBrightnessMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -63,19 +61,6 @@ public class DotcaseActivity extends Activity
                     View.SYSTEM_UI_FLAG_FULLSCREEN |
                     View.SYSTEM_UI_FLAG_IMMERSIVE);
 
-        try {
-            oldBrightness = Settings.System.getInt(getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS);
-            oldBrightnessMode = Settings.System.getInt(getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS_MODE);
-        } catch (Exception ex) {
-            Log.e(TAG, ex.toString());
-        }
-        Settings.System.putInt(this.getContentResolver(),
-                Settings.System.SCREEN_BRIGHTNESS_MODE,
-                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-        Settings.System.putInt(this.getContentResolver(),
-                Settings.System.SCREEN_BRIGHTNESS, 255);
         final DrawView drawView = new DrawView(this);
         setContentView(drawView);
         mDetector = new GestureDetectorCompat(this, new DotcaseGestureListener());
@@ -83,12 +68,6 @@ public class DotcaseActivity extends Activity
 
     @Override
     public void onDestroy() {
-        Settings.System.putInt(this.getContentResolver(),
-                Settings.System.SCREEN_BRIGHTNESS_MODE,
-                oldBrightnessMode);
-        Settings.System.putInt(this.getContentResolver(),
-                Settings.System.SCREEN_BRIGHTNESS,
-                oldBrightness);
         super.onDestroy();
     }
 
