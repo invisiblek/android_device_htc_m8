@@ -51,9 +51,6 @@ public class DotcaseActivity extends Activity
         super.onCreate(savedInstanceState);
         filter.addAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
         this.getApplicationContext().registerReceiver(receiver, filter);
-        Settings.Secure.putString(getContentResolver(),
-                                  Settings.Secure.IMMERSIVE_MODE_CONFIRMATIONS,
-                                  "org.cyanogenmod.dotcase");
         getWindow().addFlags(
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|

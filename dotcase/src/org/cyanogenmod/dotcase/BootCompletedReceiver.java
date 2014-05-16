@@ -23,12 +23,17 @@ package org.cyanogenmod.dotcase;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Settings;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
     private static final String TAG = "BootCompletedReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Settings.Secure.putString(context.getContentResolver(),
+                                  Settings.Secure.IMMERSIVE_MODE_CONFIRMATIONS,
+                                  "org.cyanogenmod.dotcase");
+
         CoverObserver coverObserver = new CoverObserver(context);
         coverObserver.init();
     }
