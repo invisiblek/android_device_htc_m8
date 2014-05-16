@@ -21,10 +21,13 @@
 package org.cyanogenmod.dotcase;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.BatteryManager;
 import android.util.Log;
 import android.view.View;
 
@@ -35,18 +38,59 @@ public class DrawView extends View {
     // 1920 high (48 dots)
     // 40pixels per dot
     private static final String TAG = "Dotcase";
+    private final Context mContext;
     Paint paint = new Paint();
-    double center = 14;
-    double dotratio = 40;
 
     public DrawView(Context context) {
         super(context);
-        paint.setARGB(255, 51, 181, 229);
+        mContext = context;
         paint.setAntiAlias(true);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
+        drawTime(canvas);
+        drawBattery(canvas);
+    }
+
+    private void drawBattery(Canvas canvas) {
+        Intent batteryIntent = mContext.getApplicationContext().registerReceiver(null,
+                    new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int rawlevel = batteryIntent.getIntExtra("level", -1);
+        double scale = batteryIntent.getIntExtra("scale", -1);
+        double level = -1;
+        if (rawlevel >= 0 && scale > 0) {
+            level = rawlevel / scale;
+        }
+
+        paint.setARGB(255, 255, 255, 255);
+        dotcaseDrawRect(1, 36, 25, 37, paint, canvas);   // top line
+        dotcaseDrawRect(24, 36, 25, 40, paint, canvas);  // upper right line
+        dotcaseDrawRect(24, 39, 26, 40, paint, canvas);  // nub top
+        dotcaseDrawRect(25, 39, 26, 44, paint, canvas);  // nub right
+        dotcaseDrawRect(24, 43, 26, 44, paint, canvas);  // nub bottom
+        dotcaseDrawRect(24, 43, 25, 47, paint, canvas);  // lower right line
+        dotcaseDrawRect(1, 46, 25, 47, paint, canvas);   // bottom line
+        dotcaseDrawRect(1, 36, 2, 47, paint, canvas);    // right line
+
+        // 4.34 percents per dot
+        int fillDots = (int)Math.round((level*100)/4.34);
+
+        if (level >= .75) {
+            paint.setARGB(255, 0, 255, 0);
+        } else if (level >= .30) {
+            paint.setARGB(255, 255, 165, 0);
+        } else {
+            paint.setARGB(255, 255, 0, 0);
+        }
+
+        for (int i = 0; i < fillDots; i++) {
+            dotcaseDrawRect(2 + i, 37, 3 + i, 46, paint, canvas);
+        }
+    }
+
+    private void drawTime(Canvas canvas) {
+        paint.setARGB(255, 51, 181, 229);
         String time = ((Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10) ?
                        "0" + Integer.toString(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) :
                        Integer.toString(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)))
@@ -56,19 +100,10 @@ public class DrawView extends View {
                        Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
         int[] sprite;
         int col, row;
-        double left, right, top, bottom;
+        int left, top, right, bottom;
 
-        canvas.drawRect((float)(13 * dotratio),
-                        (float)(9 * dotratio),
-                        (float)(14 * dotratio),
-                        (float)(10 * dotratio),
-                        paint);
-
-        canvas.drawRect((float)(13 * dotratio),
-                        (float)(12 * dotratio),
-                        (float)(14 * dotratio),
-                        (float)(13 * dotratio),
-                        paint);
+        dotcaseDrawRect(13, 9, 14, 10, paint, canvas);
+        dotcaseDrawRect(13, 12, 14, 13, paint, canvas);
 
         for (int i = 0; i < time.length(); i++) {
             sprite = getSprite(time.charAt(i));
@@ -82,24 +117,20 @@ public class DrawView extends View {
                 }
 
                 if (sprite[j] == 1) {
-                    left = ((col + i * 5) + 4) * dotratio;
-                    top = (row + 6) * dotratio;
-                    right = ((col + i * 5) + 4 + 1) * dotratio;
-                    bottom = (row + 6 + 1) * dotratio;
+                    left = ((col + i * 5) + 4);
+                    top = (row + 6);
+                    right = ((col + i * 5) + 5);
+                    bottom = (row + 7);
 
                 if (i < 2) {
-                    left = left - dotratio;
-                    right = right - dotratio;
+                    left = left - 1;
+                    right = right - 1;
                 } else {
-                    left = left + dotratio;
-                    right = right + dotratio;
+                    left = left + 1;
+                    right = right + 1;
                 }
 
-                    canvas.drawRect((float) left + 2,
-                                    (float) top + 2,
-                                    (float) right - 2,
-                                    (float) bottom -2,
-                                    paint);
+                    dotcaseDrawRect(left, top, right, bottom, paint, canvas);
                 }
 
                 col++;
@@ -257,4 +288,14 @@ public class DrawView extends View {
 
         return sprite;
     }
+
+    private void dotcaseDrawRect(int left, int top, int right, int bottom, Paint paint, Canvas canvas) {
+        float dotratio = 40;
+        canvas.drawRect((float)(left * dotratio + 2),
+                        (float)(top * dotratio + 2),
+                        (float)(right * dotratio - 2),
+                        (float)(bottom * dotratio - 2),
+                        paint);
+    }
+
 }
