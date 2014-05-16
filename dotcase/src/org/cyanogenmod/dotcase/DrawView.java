@@ -39,7 +39,8 @@ public class DrawView extends View {
     // 40pixels per dot
     private static final String TAG = "Dotcase";
     private final Context mContext;
-    Paint paint = new Paint();
+    private float dotratio = 40;
+    private Paint paint = new Paint();
 
     public DrawView(Context context) {
         super(context);
@@ -127,8 +128,8 @@ public class DrawView extends View {
         int col, row;
         int left, top, right, bottom;
 
-        dotcaseDrawRect(13, 9, 14, 10, paint, canvas);
-        dotcaseDrawRect(13, 12, 14, 13, paint, canvas);
+        dotcaseDrawPixel(13, 9, paint, canvas);
+        dotcaseDrawPixel(13, 12, paint, canvas);
 
         for (int i = 0; i < time.length(); i++) {
             sprite = getSprite(time.charAt(i));
@@ -155,7 +156,7 @@ public class DrawView extends View {
                     right = right + 1;
                 }
 
-                    dotcaseDrawRect(left, top, right, bottom, paint, canvas);
+                    dotcaseDrawPixel(left, top, paint, canvas);
                 }
 
                 col++;
@@ -314,8 +315,15 @@ public class DrawView extends View {
         return sprite;
     }
 
+    private void dotcaseDrawPixel(int x, int y, Paint paint, Canvas canvas) {
+        canvas.drawRect((float)(x * dotratio + 2),
+                        (float)(y * dotratio + 2),
+                        (float)((x + 1) * dotratio -2),
+                        (float)((y + 1) * dotratio -2),
+                        paint);
+    }
+
     private void dotcaseDrawRect(int left, int top, int right, int bottom, Paint paint, Canvas canvas) {
-        float dotratio = 40;
         canvas.drawRect((float)(left * dotratio + 2),
                         (float)(top * dotratio + 2),
                         (float)(right * dotratio - 2),
