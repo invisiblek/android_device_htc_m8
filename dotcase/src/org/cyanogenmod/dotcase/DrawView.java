@@ -71,7 +71,6 @@ public class DrawView extends View {
                         paint);
 
         for (int i = 0; i < time.length(); i++) {
-            Log.e(TAG, "char " + i + " is " + time.charAt(i));
             sprite = getSprite(time.charAt(i));
             col = 0;
             row = 0;

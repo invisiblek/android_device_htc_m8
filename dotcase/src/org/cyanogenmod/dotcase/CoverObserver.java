@@ -72,7 +72,6 @@ class CoverObserver extends UEventObserver {
     public void onUEvent(UEventObserver.UEvent event) {
         try {
             int state = Integer.parseInt(event.get("SWITCH_STATE"));
-            Log.e(TAG, "Cover " + ((state == 1) ? "closed" : "opened"));
             boolean screenOn = manager.isScreenOn();
 
             if (state == 1) {
@@ -117,7 +116,6 @@ class CoverObserver extends UEventObserver {
             if (intent.getAction() == "android.intent.action.SCREEN_ON") {
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.DotcaseActivity");
             } else {
-                Log.e(TAG, "Unhandled intent: " + intent.getAction());
                 return;
             }
 

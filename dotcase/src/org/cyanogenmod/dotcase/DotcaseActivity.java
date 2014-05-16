@@ -113,9 +113,7 @@ public class DotcaseActivity extends Activity
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e(TAG, "invisiblek: activity broadcast received");
             if (intent.getAction().equals("org.cyanogenmod.dotcase.KILL_ACTIVITY")) {
-                Log.e(TAG, "invisiblek: kill broadcast received");
                 try {
                     context.getApplicationContext().unregisterReceiver(receiver);
                 } catch (Exception ex) {
