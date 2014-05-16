@@ -27,6 +27,7 @@
                   android:theme="@style/DotcaseTheme"
                   android:windowAnimationStyle="@null">
             <intent-filter>
+<!--                <action android:name="org.cyangogenmod.dotcase.KILL_ACTIVITY"></action> -->
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>

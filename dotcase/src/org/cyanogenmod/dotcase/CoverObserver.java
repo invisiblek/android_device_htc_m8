@@ -73,11 +73,17 @@ class CoverObserver extends UEventObserver {
         try {
             int state = Integer.parseInt(event.get("SWITCH_STATE"));
             Log.e(TAG, "Cover " + ((state == 1) ? "closed" : "opened"));
+            boolean screenOn = manager.isScreenOn();
 
-            if (state == 1 && manager.isScreenOn()) {
-                manager.goToSleep(SystemClock.uptimeMillis());
-            } else if (state == 0 && !manager.isScreenOn()) {
-                manager.wakeUp(SystemClock.uptimeMillis());
+            if (state == 1) {
+                if (screenOn) {
+                    manager.goToSleep(SystemClock.uptimeMillis());
+                }
+            } else {
+                killActivity();
+                if (!screenOn) {
+                    manager.wakeUp(SystemClock.uptimeMillis());
+                }
             }
 
             mWakeLock.acquire();
@@ -99,7 +105,6 @@ class CoverObserver extends UEventObserver {
                     Log.e(TAG, ex.toString());
                 }
             }
-
             mWakeLock.release();
         }
     };
@@ -120,4 +125,14 @@ class CoverObserver extends UEventObserver {
             mContext.startActivity(i);
         }
     };
+
+    private void killActivity() {
+        try {
+            Intent i = new Intent();
+            i.setAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
+            mContext.sendBroadcast(i);
+        } catch (Exception ex) {
+            Log.e(TAG, ex.toString());
+        }
+    }
 }

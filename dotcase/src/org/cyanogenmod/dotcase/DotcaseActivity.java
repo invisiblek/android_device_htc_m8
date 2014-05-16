@@ -21,7 +21,10 @@
 package org.cyanogenmod.dotcase;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -37,6 +40,7 @@ import android.view.WindowManager;
 public class DotcaseActivity extends Activity
 {
     private static final String TAG = "DotcaseActivity";
+    private final IntentFilter filter = new IntentFilter();
     private GestureDetectorCompat mDetector;
     private int oldBrightness;
     private int oldBrightnessMode;
@@ -45,6 +49,8 @@ public class DotcaseActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        filter.addAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
+        this.getApplicationContext().registerReceiver(receiver, filter);
         Settings.Secure.putString(getContentResolver(),
                                   Settings.Secure.IMMERSIVE_MODE_CONFIRMATIONS,
                                   "org.cyanogenmod.dotcase");
@@ -107,4 +113,21 @@ public class DotcaseActivity extends Activity
         }
     }
 
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e(TAG, "invisiblek: activity broadcast received");
+            if (intent.getAction().equals("org.cyanogenmod.dotcase.KILL_ACTIVITY")) {
+                Log.e(TAG, "invisiblek: kill broadcast received");
+                try {
+                    context.getApplicationContext().unregisterReceiver(receiver);
+                } catch (Exception ex) {
+                    Log.e(TAG, ex.toString());
+                }
+
+                finish();
+                overridePendingTransition(0, 0);
+            }
+        }
+    };
 }
