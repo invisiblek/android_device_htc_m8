@@ -58,20 +58,21 @@ public class DrawView extends View {
                     new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         int rawlevel = batteryIntent.getIntExtra("level", -1);
         double scale = batteryIntent.getIntExtra("scale", -1);
+        int plugged = batteryIntent.getIntExtra("plugged", -1);
         double level = -1;
         if (rawlevel >= 0 && scale > 0) {
             level = rawlevel / scale;
         }
 
         paint.setARGB(255, 255, 255, 255);
-        dotcaseDrawRect(1, 36, 25, 37, paint, canvas);   // top line
-        dotcaseDrawRect(24, 36, 25, 40, paint, canvas);  // upper right line
-        dotcaseDrawRect(24, 39, 26, 40, paint, canvas);  // nub top
-        dotcaseDrawRect(25, 39, 26, 44, paint, canvas);  // nub right
+        dotcaseDrawRect(1, 35, 25, 36, paint, canvas);   // top line
+        dotcaseDrawRect(24, 35, 25, 39, paint, canvas);  // upper right line
+        dotcaseDrawRect(24, 38, 26, 39, paint, canvas);  // nub top
+        dotcaseDrawRect(25, 38, 26, 44, paint, canvas);  // nub right
         dotcaseDrawRect(24, 43, 26, 44, paint, canvas);  // nub bottom
         dotcaseDrawRect(24, 43, 25, 47, paint, canvas);  // lower right line
         dotcaseDrawRect(1, 46, 25, 47, paint, canvas);   // bottom line
-        dotcaseDrawRect(1, 36, 2, 47, paint, canvas);    // right line
+        dotcaseDrawRect(1, 35, 2, 47, paint, canvas);    // left line
 
         // 4.34 percents per dot
         int fillDots = (int)Math.round((level*100)/4.34);
@@ -85,7 +86,31 @@ public class DrawView extends View {
         }
 
         for (int i = 0; i < fillDots; i++) {
-            dotcaseDrawRect(2 + i, 37, 3 + i, 46, paint, canvas);
+            dotcaseDrawRect(2 + i, 36, 3 + i, 46, paint, canvas);
+        }
+
+        if (plugged > 0) {
+            paint.setARGB(255, 0, 0, 0);
+            dotcaseDrawRect(13, 36, 15, 37, paint, canvas);
+            dotcaseDrawRect(12, 37, 15, 38, paint, canvas);
+            dotcaseDrawRect(11, 38, 15, 39, paint, canvas);
+            dotcaseDrawRect(10, 39, 15, 40, paint, canvas);
+            dotcaseDrawRect(9, 40, 17, 41, paint, canvas);
+            dotcaseDrawRect(9, 41, 17, 42, paint, canvas);
+            dotcaseDrawRect(11, 42, 16, 43, paint, canvas);
+            dotcaseDrawRect(11, 43, 15, 44, paint, canvas);
+            dotcaseDrawRect(11, 44, 14, 45, paint, canvas);
+            dotcaseDrawRect(11, 45, 13, 46, paint, canvas);
+
+            paint.setARGB(255, 255, 255, 0);
+            dotcaseDrawRect(13, 37, 14, 38, paint, canvas);
+            dotcaseDrawRect(12, 38, 14, 39, paint, canvas);
+            dotcaseDrawRect(11, 39, 14, 40, paint, canvas);
+            dotcaseDrawRect(10, 40, 14, 41, paint, canvas);
+            dotcaseDrawRect(12, 41, 16, 42, paint, canvas);
+            dotcaseDrawRect(12, 42, 15, 43, paint, canvas);
+            dotcaseDrawRect(12, 43, 14, 44, paint, canvas);
+            dotcaseDrawRect(12, 44, 13, 45, paint, canvas);
         }
     }
 
