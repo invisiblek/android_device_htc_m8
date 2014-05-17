@@ -119,17 +119,30 @@ public class DrawView extends View {
     }
 
     private void drawTime(Canvas canvas) {
-        paint.setARGB(255, 51, 181, 229);
-        String time = ((Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10) ?
-                       "0" + Integer.toString(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) :
-                       Integer.toString(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)))
-                      +
-                      ((Calendar.getInstance().get(Calendar.MINUTE) < 10) ?
-                       "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)) :
-                       Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
+        int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        String hours = "  ";
+        String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10) ?
+                         "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)) :
+                         Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
+
+        if (hour_of_day > 12) {
+            hour_of_day = hour_of_day - 12;
+        }
+
+        if (hour_of_day == 0) {
+            hours = "12";
+        } else if (hour_of_day < 10) {
+            hours = " " + Integer.toString(hour_of_day);
+        } else {
+            hours = Integer.toString(hour_of_day);
+        }
+
+        String time = hours + minutes;
+
         int[][] sprite;
         int x, y;
 
+        paint.setARGB(255, 51, 181, 229);
         dotcaseDrawPixel(13, 9, paint, canvas);
         dotcaseDrawPixel(13, 12, paint, canvas);
 
