@@ -47,10 +47,11 @@ public class DotcaseActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         filter.addAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
         this.getApplicationContext().registerReceiver(receiver, filter);
+
         getWindow().addFlags(
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         getWindow().getDecorView().setSystemUiVisibility(
@@ -59,10 +60,11 @@ public class DotcaseActivity extends Activity
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                     View.SYSTEM_UI_FLAG_FULLSCREEN |
-                    View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         final DrawView drawView = new DrawView(this);
         setContentView(drawView);
+
         mDetector = new GestureDetectorCompat(this, new DotcaseGestureListener());
     }
 
@@ -98,7 +100,6 @@ public class DotcaseActivity extends Activity
                 } catch (Exception ex) {
                     Log.e(TAG, ex.toString());
                 }
-
                 finish();
                 overridePendingTransition(0, 0);
             }
