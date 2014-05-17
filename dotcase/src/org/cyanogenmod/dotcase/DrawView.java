@@ -102,7 +102,7 @@ public class DrawView extends View {
                                {0, 0, 1, 0, 0, 1, 0, 0},
                                {0, 0, 1, 0, 1, 0, 0, 0},
                                {0, 0, 1, 1, 0, 0, 0, 0}};
-            dotcaseDrawSprite(blackSprite, 13, 36, paint, canvas);
+            dotcaseDrawSprite(blackSprite, 9, 36, paint, canvas);
 
             paint.setARGB(255, 255, 255, 0);
             int[][] lightningSprite = {
@@ -113,8 +113,8 @@ public class DrawView extends View {
                                {0, 0, 1, 1, 1, 1},
                                {0, 0, 1, 1, 1, 0},
                                {0, 0, 1, 1, 0, 0},
-                               {0, 0, 1, 0, 1, 0}};
-            dotcaseDrawSprite(lightningSprite, 14, 37, paint, canvas);
+                               {0, 0, 1, 0, 0, 0}};
+            dotcaseDrawSprite(lightningSprite, 10, 37, paint, canvas);
         }
     }
 
@@ -172,7 +172,6 @@ public class DrawView extends View {
             case '1': sprite = new int[][]
                                {{0, 0, 1, 0},
                                 {0, 1, 1, 0},
-                                {1, 1, 1, 0},
                                 {0, 0, 1, 0},
                                 {0, 0, 1, 0},
                                 {0, 0, 1, 0},
@@ -180,7 +179,8 @@ public class DrawView extends View {
                                 {0, 0, 1, 0},
                                 {0, 0, 1, 0},
                                 {0, 0, 1, 0},
-                                {1, 1, 1, 1}};
+                                {0, 0, 1, 0},
+                                {0, 1, 1, 1}};
                       break;
             case '2': sprite = new int[][]
                                {{0, 1, 1, 0},
