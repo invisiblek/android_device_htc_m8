@@ -127,11 +127,11 @@ public class DrawView extends View {
 
         if (hour_of_day > 12) {
             hour_of_day = hour_of_day - 12;
+        } else if (hour_of_day == 0) {
+            hour_of_day = 12;
         }
 
-        if (hour_of_day == 0) {
-            hours = "12";
-        } else if (hour_of_day < 10) {
+        if (hour_of_day < 10) {
             hours = " " + Integer.toString(hour_of_day);
         } else {
             hours = Integer.toString(hour_of_day);
@@ -141,10 +141,17 @@ public class DrawView extends View {
 
         int[][] sprite;
         int x, y;
+        int starter;
+
+        if (hour_of_day > 9) {
+            starter = 3;
+        } else {
+            starter = 0;
+        }
 
         paint.setARGB(255, 51, 181, 229);
-        dotcaseDrawPixel(13, 9, paint, canvas);
-        dotcaseDrawPixel(13, 12, paint, canvas);
+        dotcaseDrawPixel(starter + 10, 9, paint, canvas);
+        dotcaseDrawPixel(starter + 10, 12, paint, canvas);
 
         for (int i = 0; i < time.length(); i++) {
             sprite = getSprite(time.charAt(i));
@@ -152,13 +159,13 @@ public class DrawView extends View {
             y = 5;
 
             if (i == 0) {
-                x = 3;
+                x = starter + 0;
             } else if (i == 1) {
-                x = 8;
+                x = starter + 5;
             } else if (i == 2) {
-                x = 15;
+                x = starter + 12;
             } else {
-                x = 20;
+                x = starter + 17;
             }
 
             dotcaseDrawSprite(sprite, x, y, paint, canvas);
