@@ -68,9 +68,7 @@ public class DrawView extends View {
         paint.setARGB(255, 255, 255, 255);
         dotcaseDrawRect(1, 35, 25, 36, paint, canvas);   // top line
         dotcaseDrawRect(24, 35, 25, 39, paint, canvas);  // upper right line
-        dotcaseDrawRect(24, 38, 26, 39, paint, canvas);  // nub top
         dotcaseDrawRect(25, 38, 26, 44, paint, canvas);  // nub right
-        dotcaseDrawRect(24, 43, 26, 44, paint, canvas);  // nub bottom
         dotcaseDrawRect(24, 43, 25, 47, paint, canvas);  // lower right line
         dotcaseDrawRect(1, 46, 25, 47, paint, canvas);   // bottom line
         dotcaseDrawRect(1, 35, 2, 47, paint, canvas);    // left line
