@@ -314,19 +314,18 @@ public class DrawView extends View {
     }
 
     private void dotcaseDrawPixel(int x, int y, Paint paint, Canvas canvas) {
-        canvas.drawRect((float)(x * dotratio + 2),
-                        (float)(y * dotratio + 2),
-                        (float)((x + 1) * dotratio -2),
-                        (float)((y + 1) * dotratio -2),
+        canvas.drawRect((float)(x * dotratio + 5),
+                        (float)(y * dotratio + 5),
+                        (float)((x + 1) * dotratio -5),
+                        (float)((y + 1) * dotratio -5),
                         paint);
     }
 
     private void dotcaseDrawRect(int left, int top, int right, int bottom, Paint paint, Canvas canvas) {
-        canvas.drawRect((float)(left * dotratio + 2),
-                        (float)(top * dotratio + 2),
-                        (float)(right * dotratio - 2),
-                        (float)(bottom * dotratio - 2),
-                        paint);
+        for (int x=left; x < right; x++) {
+            for (int y=top; y < bottom; y++) {
+                dotcaseDrawPixel(x, y, paint, canvas);
+            }
+        }
     }
-
 }
