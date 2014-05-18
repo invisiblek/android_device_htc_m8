@@ -20,6 +20,7 @@
 
 package org.cyanogenmod.dotcase;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -41,6 +42,7 @@ public class DrawView extends View {
     private final Context mContext;
     private float dotratio = 40;
     private Paint paint = new Paint();
+    private final IntentFilter filter = new IntentFilter();
 
     public DrawView(Context context) {
         super(context);
@@ -52,6 +54,9 @@ public class DrawView extends View {
     public void onDraw(Canvas canvas) {
         drawTime(canvas);
         drawBattery(canvas);
+
+        filter.addAction("org.cyanogenmod.dotcase.REDRAW");
+        mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
     private void drawBattery(Canvas canvas) {
@@ -349,4 +354,11 @@ public class DrawView extends View {
             }
         }
     }
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            postInvalidate();
+        }
+    };
 }
