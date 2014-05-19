@@ -122,6 +122,8 @@ class CoverObserver extends UEventObserver {
 
             if (intent.getAction() == "android.intent.action.SCREEN_ON") {
                 crankUpBrightness();
+                intent.setAction("org.cyanogenmod.dotcase.REDRAW");
+                mContext.sendBroadcast(intent);
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.DotcaseActivity");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);

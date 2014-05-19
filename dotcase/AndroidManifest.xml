@@ -19,7 +19,7 @@
                 <action android:name="CoverObserver"/>
             </intent-filter>
         </service>
-        <activity 
+        <activity
                   android:excludeFromRecents="true"
                   android:name="DotcaseActivity"
                   android:label="DotcaseActivity"
