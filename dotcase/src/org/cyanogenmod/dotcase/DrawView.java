@@ -90,7 +90,11 @@ public class DrawView extends View {
         }
 
         for (int i = 0; i < fillDots; i++) {
-            dotcaseDrawRect(2 + i, 36, 3 + i, 46, paint, canvas);
+            if (i == 22) {
+                dotcaseDrawRect(2 + i, 39, 3 + i, 43, paint, canvas);
+            } else {
+                dotcaseDrawRect(2 + i, 36, 3 + i, 46, paint, canvas);
+            }
         }
 
         if (plugged > 0) {
