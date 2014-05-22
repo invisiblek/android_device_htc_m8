@@ -82,7 +82,17 @@ public class DotcaseActivity extends Activity
     class Service implements Runnable {
         @Override
         public void run() {
-            for (int i = 0; i <= 10; i++) {
+            Intent batteryIntent = mContext.getApplicationContext().registerReceiver(null,
+                                         new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int timeout;
+
+            if(batteryIntent.getIntExtra("plugged", -1) > 0) {
+                timeout = 20;
+            } else {
+                timeout = 10;
+            }
+
+            for (int i = 0; i <= timeout; i++) {
                 try {
                     BufferedReader br = new BufferedReader(new FileReader(COVER_NODE));
                     String value = br.readLine();
