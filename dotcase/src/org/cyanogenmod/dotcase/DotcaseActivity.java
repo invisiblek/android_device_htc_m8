@@ -48,6 +48,7 @@ public class DotcaseActivity extends Activity
     private GestureDetectorCompat mDetector;
     private PowerManager manager;
     private Context mContext;
+    private volatile boolean running = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -76,46 +77,51 @@ public class DotcaseActivity extends Activity
 
         manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         mDetector = new GestureDetectorCompat(mContext, new DotcaseGestureListener());
+        running = true;
         new Thread(new Service()).start();
     }
 
     class Service implements Runnable {
         @Override
         public void run() {
-            Intent batteryIntent = mContext.getApplicationContext().registerReceiver(null,
-                                         new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-            int timeout;
+            while (running) {
+                Intent batteryIntent = mContext.getApplicationContext().registerReceiver(null,
+                                             new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+                int timeout;
 
-            if(batteryIntent.getIntExtra("plugged", -1) > 0) {
-                timeout = 20;
-            } else {
-                timeout = 10;
-            }
+                if(batteryIntent.getIntExtra("plugged", -1) > 0) {
+                    timeout = 20;
+                } else {
+                    timeout = 10;
+                }
 
-            for (int i = 0; i <= timeout; i++) {
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(COVER_NODE));
-                    String value = br.readLine();
-                    br.close();
+                for (int i = 0; i <= timeout; i++) {
+                    try {
+                        BufferedReader br = new BufferedReader(new FileReader(COVER_NODE));
+                        String value = br.readLine();
+                        br.close();
 
-                    if (value.equals("0")) {
-                        finish();
-                        overridePendingTransition(0, 0);
+                        if (value.equals("0")) {
+                            finish();
+                            overridePendingTransition(0, 0);
+                            running = false;
+                        }
+                    } catch (Exception ex) {
+                        Log.e(TAG, ex.toString());
                     }
-                } catch (Exception ex) {
-                    Log.e(TAG, ex.toString());
-                }
 
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex) {
-                    Log.e(TAG, ex.toString());
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception ex) {
+                        Log.e(TAG, ex.toString());
+                    }
+
+                    Intent intent = new Intent();
+                    intent.setAction("org.cyanogenmod.dotcase.REDRAW");
+                    mContext.sendBroadcast(intent);
                 }
-                Intent intent = new Intent();
-                intent.setAction("org.cyanogenmod.dotcase.REDRAW");
-                mContext.sendBroadcast(intent);
+                manager.goToSleep(SystemClock.uptimeMillis());
             }
-            manager.goToSleep(SystemClock.uptimeMillis());
         }
     }
 
