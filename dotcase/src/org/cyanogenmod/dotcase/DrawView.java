@@ -25,11 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.os.BatteryManager;
-import android.util.Log;
 import android.view.View;
 
 import java.util.Calendar;
@@ -407,7 +403,6 @@ public class DrawView extends View {
     }
 
     private Paint getPaintFromNumber(int color) {
-        Paint p = new Paint();
         switch (color) {
             case -1: // transparent
                      paint.setARGB(0, 0, 0, 0);

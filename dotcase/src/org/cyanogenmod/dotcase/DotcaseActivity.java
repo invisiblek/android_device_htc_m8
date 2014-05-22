@@ -28,12 +28,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.provider.Settings;
-import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ViewGroup.LayoutParams;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -45,7 +42,7 @@ public class DotcaseActivity extends Activity
     private static final String TAG = "DotcaseActivity";
     private static final String COVER_NODE = "/sys/android_touch/cover";
     private final IntentFilter filter = new IntentFilter();
-    private GestureDetectorCompat mDetector;
+    private GestureDetector mDetector;
     private PowerManager manager;
     private Context mContext;
     private volatile boolean running = true;
@@ -76,7 +73,7 @@ public class DotcaseActivity extends Activity
         setContentView(drawView);
 
         manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        mDetector = new GestureDetectorCompat(mContext, new DotcaseGestureListener());
+        mDetector = new GestureDetector(mContext, new DotcaseGestureListener());
         running = true;
         new Thread(new Service()).start();
     }
