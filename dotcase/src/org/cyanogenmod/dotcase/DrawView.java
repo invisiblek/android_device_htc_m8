@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 
 import java.util.Calendar;
@@ -56,6 +58,7 @@ public class DrawView extends View {
 //        drawHangouts(canvas);
 //        drawWeather(canvas);
         filter.addAction("org.cyanogenmod.dotcase.REDRAW");
+        filter.addAction("org.cyanogenmod.dotcase.PHONE_RINGING");
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
@@ -448,7 +451,15 @@ public class DrawView extends View {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            postInvalidate();
+            if (intent.getAction().equals("org.cyanogenmod.dotcase.PHONE_RINGING")) {
+                phoneRinging(TelephonyManager.EXTRA_INCOMING_NUMBER);
+            } else if (intent.getAction().equals("org.cyanogenmod.dotcase.REDRAW")) {
+                postInvalidate();
+            }
         }
     };
+
+    private void phoneRinging(String number) {
+        Log.e(TAG, "Phone Number: " + number);
+    }
 }

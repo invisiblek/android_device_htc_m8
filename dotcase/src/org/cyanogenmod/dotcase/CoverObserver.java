@@ -31,6 +31,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.os.UEventObserver;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -68,6 +69,7 @@ class CoverObserver extends UEventObserver {
         }
 
         filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 
         manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         startObserving(COVER_UEVENT_MATCH);
@@ -118,7 +120,14 @@ class CoverObserver extends UEventObserver {
         public void onReceive(Context context, Intent intent) {
             Intent i = new Intent();
 
-            if (intent.getAction() == "android.intent.action.SCREEN_ON") {
+            if (intent.getAction() == "android.intent.action.PHONE_STATE") {
+                Log.e(TAG, "PhoneState: " + intent.getStringExtra(TelephonyManager.EXTRA_STATE));
+                String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                if (state == "RINGING") {
+                    intent.setAction("org.cyanogenmod.dotcase.PHONE_RINGING");
+                    mContext.sendBroadcast(intent);
+                }
+            } else if (intent.getAction() == "android.intent.action.SCREEN_ON") {
                 crankUpBrightness();
                 intent.setAction("org.cyanogenmod.dotcase.REDRAW");
                 mContext.sendBroadcast(intent);
