@@ -30,12 +30,12 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 
 public class DrawView extends View {
-    // 1080 wide (27 dots)
-    // 1920 high (48 dots)
-    // 40pixels per dot
+    // 1920x1080 = 48 x 27 dots @ 40 pixels per dot
     private static final String TAG = "DotcaseDrawView";
     private final Context mContext;
     private float dotratio = 40;
@@ -43,6 +43,7 @@ public class DrawView extends View {
     private final IntentFilter filter = new IntentFilter();
     private static boolean ringing = false;
     private static int ringCounter = 0;
+    private static boolean ringerSwitcher = false;
 
     public DrawView(Context context) {
         super(context);
@@ -63,16 +64,70 @@ public class DrawView extends View {
         } else {
             drawRinger(canvas);
         }
+
         filter.addAction("org.cyanogenmod.dotcase.REDRAW");
         filter.addAction("org.cyanogenmod.dotcase.PHONE_RINGING");
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
     private void drawRinger(Canvas canvas) {
-        int[][] ringerSprite = {
+        int light = 3;
+        int dark = 10;
 
-        dotcaseDrawSprite(ringerSprite, 1, 29, canvas);
+        int[][] handsetSprite = {
+                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
+                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
+                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
+                                {0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0},
+                                {0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0}};
+
+        int[][] ringerSprite = {
+                                {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+                                {0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0},
+                                {0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0},
+                                {0, 1, 1, 1, 0, 0, 2, 0, 0, 1, 1, 1, 0},
+                                {1, 1, 1, 0, 0, 2, 2, 2, 0, 0, 1, 1, 1},
+                                {0, 1, 0, 0, 2, 2, 2, 2, 2, 0, 0, 1, 0},
+                                {0, 0, 0, 2, 2, 2, 0, 2, 2, 2, 0, 0, 0},
+                                {0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 2, 0, 0},
+                                {0, 2, 2, 2, 0, 0, 3, 0, 0, 2, 2, 2, 0},
+                                {2, 2, 2, 0, 0, 3, 3, 3, 0, 0, 2, 2, 2},
+                                {0, 2, 0, 0, 3, 3, 3, 3, 3, 0, 0, 2, 0},
+                                {0, 0, 0, 3, 3, 3, 0, 3, 3, 3, 0, 0, 0},
+                                {0, 0, 3, 3, 3, 0, 0, 0, 3, 3, 3, 0, 0},
+                                {0, 3, 3, 3, 0, 0, 0, 0, 0, 3, 3, 3, 0},
+                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
+                                {0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0}};
+
+        if (ringerSwitcher) {
+            Collections.reverse(Arrays.asList(ringerSprite));
+            Collections.reverse(Arrays.asList(handsetSprite));
+            light = 2;
+            dark = 11;
+            for (int i = 0; i < handsetSprite.length; i++) {
+                for (int j = 0; j < handsetSprite[0].length; j++) {
+                    handsetSprite[i][j] = handsetSprite[i][j] > 0 ? light : 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < ringerSprite.length; i++) {
+            for (int j = 0; j < ringerSprite[0].length; j++) {
+                ringerSprite[i][j] = ringerSprite[i][j] == 3 - ringCounter ? light : ringerSprite[i][j] > 0 ? dark : 0;
+            }
+        }
+
+        dotcaseDrawSprite(handsetSprite, 6, 21, canvas);
+        dotcaseDrawSprite(ringerSprite, 7, 28, canvas);
+
         ringCounter++;
+        if (ringCounter > 2) {
+            ringerSwitcher = ringerSwitcher ? false : true;
+            ringCounter = 0;
+        }
+
         return;
     }
 
@@ -433,6 +488,12 @@ public class DrawView extends View {
             case 9:  // cyan
                      paint.setARGB(255, 51, 181, 229);
                      break;
+            case 10: // dark green
+                     paint.setARGB(255, 0, 128, 0);
+                     break;
+            case 11: // dark red
+                     paint.setARGB(255, 128, 0, 0);
+                     break;
             default: // black
                      paint.setARGB(255, 0, 0, 0);
                      break;
@@ -455,6 +516,7 @@ public class DrawView extends View {
     private void phoneRinging(String number) {
         ringing = true;
         ringCounter = 0;
+        ringerSwitcher = false;;
         Log.e(TAG, "Phone Number: " + number);
     }
 }

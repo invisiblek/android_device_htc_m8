@@ -80,52 +80,59 @@ public class DotcaseActivity extends Activity
 
         manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         mDetector = new GestureDetector(mContext, new DotcaseGestureListener());
-        running = true;
+        running = false;
         new Thread(new Service()).start();
     }
 
     class Service implements Runnable {
         @Override
         public void run() {
-            while (running) {
-                Intent batteryIntent = mContext.getApplicationContext().registerReceiver(null,
+            if (!running) {
+                running = true;
+                while (running) {
+                    Intent batteryIntent = mContext.getApplicationContext().registerReceiver(null,
                                              new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-                int timeout;
+                    int timeout;
 
-                if(batteryIntent.getIntExtra("plugged", -1) > 0) {
-                    timeout = 40;
-                } else {
-                    timeout = 20;
-                }
+                    if(batteryIntent.getIntExtra("plugged", -1) > 0) {
+                        timeout = 40;
+                    } else {
+                        timeout = 20;
+                    }
 
-                for (int i = 0; i <= timeout; i++) {
-                    try {
-                        BufferedReader br = new BufferedReader(new FileReader(COVER_NODE));
-                        String value = br.readLine();
-                        br.close();
-
-                        if (value.equals("0")) {
-                            finish();
-                            overridePendingTransition(0, 0);
-                            running = false;
+                    for (int i = 0; i <= timeout; i++) {
+                        if (!running) {
+                            break;
                         }
-                    } catch (Exception ex) {}
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader(COVER_NODE));
+                            String value = br.readLine();
+                            br.close();
 
-                    try {
-                        Thread.sleep(500);
-                    } catch (Exception ex) {}
+                            if (value.equals("0")) {
+                                running = false;
+                                finish();
+                                overridePendingTransition(0, 0);
+                            }
+                        } catch (Exception ex) {}
 
-                    Intent intent = new Intent();
-                    intent.setAction("org.cyanogenmod.dotcase.REDRAW");
-                    mContext.sendBroadcast(intent);
+                        try {
+                            Thread.sleep(500);
+                        } catch (Exception ex) {}
+
+                        Intent intent = new Intent();
+                        intent.setAction("org.cyanogenmod.dotcase.REDRAW");
+                        mContext.sendBroadcast(intent);
+                    }
+                    manager.goToSleep(SystemClock.uptimeMillis());
                 }
-                manager.goToSleep(SystemClock.uptimeMillis());
             }
         }
     }
 
     @Override
     public void onDestroy() {
+        running = false;
         super.onDestroy();
     }
 
@@ -170,9 +177,9 @@ public class DotcaseActivity extends Activity
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("org.cyanogenmod.dotcase.KILL_ACTIVITY")) {
                 try {
-                    running = false;
                     context.getApplicationContext().unregisterReceiver(receiver);
                 } catch (Exception ex) {}
+                running = false;
                 finish();
                 overridePendingTransition(0, 0);
             }
