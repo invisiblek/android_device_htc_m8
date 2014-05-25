@@ -102,7 +102,7 @@ public class DotcaseActivity extends Activity
 
                     for (int i = 0; i <= timeout; i++) {
                         if (!running) {
-                            break;
+                            return;
                         }
 
                         try {
