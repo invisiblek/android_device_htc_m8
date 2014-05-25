@@ -41,6 +41,8 @@ public class DrawView extends View {
     private float dotratio = 40;
     private Paint paint = new Paint();
     private final IntentFilter filter = new IntentFilter();
+    private static boolean ringing = false;
+    private static int ringCounter = 0;
 
     public DrawView(Context context) {
         super(context);
@@ -51,25 +53,37 @@ public class DrawView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         drawTime(canvas);
-        drawBattery(canvas);
-        // TODO: kick off some sort of loop that will rotate between different notifications
-        // OR    new idea: smaller icons that will show based on notification status
-//        drawGmail(canvas);
-//        drawHangouts(canvas);
-//        drawWeather(canvas);
+
+        if (!ringing) {
+            drawBattery(canvas);
+//            TODO
+//            drawGmail(canvas);
+//            drawHangouts(canvas);
+//            drawWeather(canvas);
+        } else {
+            drawRinger(canvas);
+        }
         filter.addAction("org.cyanogenmod.dotcase.REDRAW");
         filter.addAction("org.cyanogenmod.dotcase.PHONE_RINGING");
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
+    private void drawRinger(Canvas canvas) {
+        int[][] ringerSprite = {
+
+        dotcaseDrawSprite(ringerSprite, 1, 29, canvas);
+        ringCounter++;
+        return;
+    }
+
     private void drawHangouts(Canvas canvas) {
         int[][] hangoutsSprite = {
-                               {0, 3, 3, 3, 3, 3, 0},
-                               {3, 3, 1, 3, 1, 3, 3},
-                               {3, 3, 1, 3, 1, 3, 3},
-                               {0, 3, 3, 3, 3, 3, 0},
-                               {0, 0, 0, 3, 3, 0, 0},
-                               {0, 0, 0, 3, 0, 0, 0}};
+                                  {0, 3, 3, 3, 3, 3, 0},
+                                  {3, 3, 1, 3, 1, 3, 3},
+                                  {3, 3, 1, 3, 1, 3, 3},
+                                  {0, 3, 3, 3, 3, 3, 0},
+                                  {0, 0, 0, 3, 3, 0, 0},
+                                  {0, 0, 0, 3, 0, 0, 0}};
 
         dotcaseDrawSprite(hangoutsSprite, 10, 29, canvas);
     }
@@ -439,6 +453,8 @@ public class DrawView extends View {
     };
 
     private void phoneRinging(String number) {
+        ringing = true;
+        ringCounter = 0;
         Log.e(TAG, "Phone Number: " + number);
     }
 }
