@@ -38,7 +38,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 class CoverObserver extends UEventObserver {
-    private static final String TAG = "CoverObserver";
+    private static final String TAG = "DotcaseCoverObserver";
     private static final String COVER_UEVENT_MATCH = "DEVPATH=/devices/virtual/switch/cover";
     private static final String COVER_STATE_PATH = "/sys/class/switch/cover/state";
 
@@ -64,9 +64,7 @@ class CoverObserver extends UEventObserver {
             BufferedReader closed = new BufferedReader(new FileReader(COVER_STATE_PATH));
             String value = closed.readLine();
             closed.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
+        } catch (Exception e) {}
 
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
@@ -94,9 +92,7 @@ class CoverObserver extends UEventObserver {
 
             mWakeLock.acquire();
             mHandler.sendMessageDelayed(mHandler.obtainMessage(state), 0);
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
+        } catch (Exception e) {}
     }
 
     private final Handler mHandler = new Handler() {
@@ -107,9 +103,7 @@ class CoverObserver extends UEventObserver {
             } else {
                 try {
                     mContext.getApplicationContext().unregisterReceiver(receiver);
-                } catch (Exception ex) {
-                    Log.e(TAG, ex.toString());
-                }
+                } catch (Exception ex) {}
             }
             mWakeLock.release();
         }
@@ -119,15 +113,13 @@ class CoverObserver extends UEventObserver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Intent i = new Intent();
-
-            if (intent.getAction() == "android.intent.action.PHONE_STATE") {
-                Log.e(TAG, "PhoneState: " + intent.getStringExtra(TelephonyManager.EXTRA_STATE));
+            if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-                if (state == "RINGING") {
+                if (state.equals("RINGING")) {
                     intent.setAction("org.cyanogenmod.dotcase.PHONE_RINGING");
                     mContext.sendBroadcast(intent);
                 }
-            } else if (intent.getAction() == "android.intent.action.SCREEN_ON") {
+            } else if (intent.getAction().equals("android.intent.action.SCREEN_ON")) {
                 crankUpBrightness();
                 intent.setAction("org.cyanogenmod.dotcase.REDRAW");
                 mContext.sendBroadcast(intent);
@@ -146,9 +138,7 @@ class CoverObserver extends UEventObserver {
                         Settings.System.SCREEN_BRIGHTNESS);
                 oldBrightnessMode = Settings.System.getInt(mContext.getContentResolver(),
                         Settings.System.SCREEN_BRIGHTNESS_MODE);
-            } catch (Exception ex) {
-                Log.e(TAG, ex.toString());
-            }
+            } catch (Exception ex) {}
 
             needStoreOldBrightness = false;
         }
@@ -175,8 +165,6 @@ class CoverObserver extends UEventObserver {
             Intent i = new Intent();
             i.setAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
             mContext.sendBroadcast(i);
-        } catch (Exception ex) {
-            Log.e(TAG, ex.toString());
-        }
+        } catch (Exception ex) {}
     }
 }

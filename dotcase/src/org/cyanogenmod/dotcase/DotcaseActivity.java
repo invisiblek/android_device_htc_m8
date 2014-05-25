@@ -29,11 +29,16 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
+import android.telephony.TelephonyManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.android.internal.telephony.ITelephony;
+
+import java.lang.Math;
+import java.lang.reflect.Method;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
@@ -42,6 +47,7 @@ public class DotcaseActivity extends Activity
     private static final String TAG = "DotcaseActivity";
     private static final String COVER_NODE = "/sys/android_touch/cover";
     private final IntentFilter filter = new IntentFilter();
+    private ITelephony telephonyService;
     private GestureDetector mDetector;
     private PowerManager manager;
     private Context mContext;
@@ -103,15 +109,11 @@ public class DotcaseActivity extends Activity
                             overridePendingTransition(0, 0);
                             running = false;
                         }
-                    } catch (Exception ex) {
-                        Log.e(TAG, ex.toString());
-                    }
+                    } catch (Exception ex) {}
 
                     try {
                         Thread.sleep(1000);
-                    } catch (Exception ex) {
-                        Log.e(TAG, ex.toString());
-                    }
+                    } catch (Exception ex) {}
 
                     Intent intent = new Intent();
                     intent.setAction("org.cyanogenmod.dotcase.REDRAW");
@@ -136,10 +138,29 @@ public class DotcaseActivity extends Activity
     class DotcaseGestureListener extends GestureDetector.SimpleOnGestureListener
     {
         @Override
-        public boolean onDoubleTap(MotionEvent event)
-        {
-            Log.d(TAG, "onDoubleTap event");
+        public boolean onDoubleTap(MotionEvent event) {
             manager.goToSleep(SystemClock.uptimeMillis());
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (Math.abs(distanceY) > 60) {
+                try {
+                    TelephonyManager telephony = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+                    mContext.getSystemService(Context.TELEPHONY_SERVICE);
+                    Class c = Class.forName(telephony.getClass().getName());
+                    Method m = c.getDeclaredMethod("getITelephony");
+                    m.setAccessible(true);
+                    telephonyService = (ITelephony) m.invoke(telephony);
+                    telephonyService.silenceRinger();
+                    if (distanceY < 60) {
+                        telephonyService.endCall();
+                    } else if (distanceY > 60) {
+                        telephonyService.answerRingingCall();
+                    }
+                } catch (Exception ex) {}
+            }
             return true;
         }
     }
@@ -150,9 +171,7 @@ public class DotcaseActivity extends Activity
             if (intent.getAction().equals("org.cyanogenmod.dotcase.KILL_ACTIVITY")) {
                 try {
                     context.getApplicationContext().unregisterReceiver(receiver);
-                } catch (Exception ex) {
-                    Log.e(TAG, ex.toString());
-                }
+                } catch (Exception ex) {}
                 finish();
                 overridePendingTransition(0, 0);
             }
