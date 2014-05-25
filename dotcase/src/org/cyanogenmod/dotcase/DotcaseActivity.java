@@ -170,6 +170,7 @@ public class DotcaseActivity extends Activity
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("org.cyanogenmod.dotcase.KILL_ACTIVITY")) {
                 try {
+                    running = false;
                     context.getApplicationContext().unregisterReceiver(receiver);
                 } catch (Exception ex) {}
                 finish();
