@@ -104,6 +104,7 @@ public class DotcaseActivity extends Activity
                         if (!running) {
                             break;
                         }
+
                         try {
                             BufferedReader br = new BufferedReader(new FileReader(COVER_NODE));
                             String value = br.readLine();

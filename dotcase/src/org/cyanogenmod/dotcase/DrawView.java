@@ -67,6 +67,7 @@ public class DrawView extends View {
 
         filter.addAction("org.cyanogenmod.dotcase.REDRAW");
         filter.addAction("org.cyanogenmod.dotcase.PHONE_RINGING");
+        filter.addAction("org.cyanogenmod.dotcase.DONE_RINGING");
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
@@ -507,6 +508,8 @@ public class DrawView extends View {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("org.cyanogenmod.dotcase.PHONE_RINGING")) {
                 phoneRinging(TelephonyManager.EXTRA_INCOMING_NUMBER);
+            } else if (intent.getAction().equals("org.cyanogenmod.dotcase.DONE_RINGING")) {
+                ringing = false;
             } else if (intent.getAction().equals("org.cyanogenmod.dotcase.REDRAW")) {
                 postInvalidate();
             }
@@ -516,7 +519,7 @@ public class DrawView extends View {
     private void phoneRinging(String number) {
         ringing = true;
         ringCounter = 0;
-        ringerSwitcher = false;;
+        ringerSwitcher = false;
         Log.e(TAG, "Phone Number: " + number);
     }
 }

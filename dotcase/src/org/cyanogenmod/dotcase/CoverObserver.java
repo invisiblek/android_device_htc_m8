@@ -118,6 +118,9 @@ class CoverObserver extends UEventObserver {
                 if (state.equals("RINGING")) {
                     intent.setAction("org.cyanogenmod.dotcase.PHONE_RINGING");
                     mContext.sendBroadcast(intent);
+                } else {
+                    intent.setAction("org.cyanogenmod.dotcase.DONE_RINGING");
+                    mContext.sendBroadcast(intent);
                 }
             } else if (intent.getAction().equals("android.intent.action.SCREEN_ON")) {
                 crankUpBrightness();
