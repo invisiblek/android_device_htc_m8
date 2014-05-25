@@ -93,9 +93,9 @@ public class DotcaseActivity extends Activity
                 int timeout;
 
                 if(batteryIntent.getIntExtra("plugged", -1) > 0) {
-                    timeout = 20;
+                    timeout = 40;
                 } else {
-                    timeout = 10;
+                    timeout = 20;
                 }
 
                 for (int i = 0; i <= timeout; i++) {
@@ -112,7 +112,7 @@ public class DotcaseActivity extends Activity
                     } catch (Exception ex) {}
 
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(500);
                     } catch (Exception ex) {}
 
                     Intent intent = new Intent();
