@@ -23,8 +23,8 @@
         </service>
         <activity
                   android:excludeFromRecents="true"
-                  android:name="DotcaseActivity"
-                  android:label="DotcaseActivity"
+                  android:name="Dotcase"
+                  android:label="Dotcase"
                   android:launchMode="singleInstance"
                   android:screenOrientation="portrait"
                   android:theme="@style/DotcaseTheme"

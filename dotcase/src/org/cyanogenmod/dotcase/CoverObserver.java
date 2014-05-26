@@ -113,20 +113,20 @@ class CoverObserver extends UEventObserver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Intent i = new Intent();
-            if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
+            if (intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 if (state.equals("RINGING")) {
-                    intent.setAction("org.cyanogenmod.dotcase.PHONE_RINGING");
+                    intent.setAction(Dotcase.ACTION_PHONE_RINGING);
                     mContext.sendBroadcast(intent);
                 } else {
-                    intent.setAction("org.cyanogenmod.dotcase.DONE_RINGING");
+                    intent.setAction(Dotcase.ACTION_DONE_RINGING);
                     mContext.sendBroadcast(intent);
                 }
-            } else if (intent.getAction().equals("android.intent.action.SCREEN_ON")) {
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 crankUpBrightness();
-                intent.setAction("org.cyanogenmod.dotcase.REDRAW");
+                intent.setAction(Dotcase.ACTION_REDRAW);
                 mContext.sendBroadcast(intent);
-                i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.DotcaseActivity");
+                i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);
                 return;
@@ -166,7 +166,7 @@ class CoverObserver extends UEventObserver {
 
         try {
             Intent i = new Intent();
-            i.setAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
+            i.setAction(Dotcase.ACTION_KILL_ACTIVITY);
             mContext.sendBroadcast(i);
         } catch (Exception ex) {}
     }

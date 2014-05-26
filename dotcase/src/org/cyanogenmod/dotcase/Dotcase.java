@@ -42,9 +42,9 @@ import java.lang.reflect.Method;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class DotcaseActivity extends Activity
+public class Dotcase extends Activity
 {
-    private static final String TAG = "DotcaseActivity";
+    private static final String TAG = "Dotcase";
     private static final String COVER_NODE = "/sys/android_touch/cover";
     private final IntentFilter filter = new IntentFilter();
     private ITelephony telephonyService;
@@ -53,6 +53,11 @@ public class DotcaseActivity extends Activity
     private Context mContext;
     private volatile boolean running = true;
 
+    public static final String ACTION_DONE_RINGING = "org.cyanogenmod.dotcase.DONE_RINGING";
+    public static final String ACTION_KILL_ACTIVITY = "org.cyanogenmod.dotcase.KILL_ACTIVITY";
+    public static final String ACTION_PHONE_RINGING = "org.cyanogenmod.dotcase.PHONE_RINGING";
+    public static final String ACTION_REDRAW = "org.cyanogenmod.dotcase.REDRAW";
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -60,7 +65,7 @@ public class DotcaseActivity extends Activity
 
         mContext = this;
 
-        filter.addAction("org.cyanogenmod.dotcase.KILL_ACTIVITY");
+        filter.addAction(Dotcase.ACTION_KILL_ACTIVITY);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
 
         getWindow().addFlags(
@@ -122,7 +127,7 @@ public class DotcaseActivity extends Activity
                         } catch (Exception ex) {}
 
                         Intent intent = new Intent();
-                        intent.setAction("org.cyanogenmod.dotcase.REDRAW");
+                        intent.setAction(Dotcase.ACTION_REDRAW);
                         mContext.sendBroadcast(intent);
                     }
                     manager.goToSleep(SystemClock.uptimeMillis());
@@ -176,7 +181,7 @@ public class DotcaseActivity extends Activity
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("org.cyanogenmod.dotcase.KILL_ACTIVITY")) {
+            if (intent.getAction().equals(Dotcase.ACTION_KILL_ACTIVITY)) {
                 try {
                     context.getApplicationContext().unregisterReceiver(receiver);
                 } catch (Exception ex) {}

@@ -65,9 +65,9 @@ public class DrawView extends View {
             drawRinger(canvas);
         }
 
-        filter.addAction("org.cyanogenmod.dotcase.REDRAW");
-        filter.addAction("org.cyanogenmod.dotcase.PHONE_RINGING");
-        filter.addAction("org.cyanogenmod.dotcase.DONE_RINGING");
+        filter.addAction(Dotcase.ACTION_DONE_RINGING);
+        filter.addAction(Dotcase.ACTION_PHONE_RINGING);
+        filter.addAction(Dotcase.ACTION_REDRAW);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
@@ -506,11 +506,11 @@ public class DrawView extends View {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("org.cyanogenmod.dotcase.PHONE_RINGING")) {
+            if (intent.getAction().equals(Dotcase.ACTION_PHONE_RINGING)) {
                 phoneRinging(TelephonyManager.EXTRA_INCOMING_NUMBER);
-            } else if (intent.getAction().equals("org.cyanogenmod.dotcase.DONE_RINGING")) {
+            } else if (intent.getAction().equals(Dotcase.ACTION_DONE_RINGING)) {
                 ringing = false;
-            } else if (intent.getAction().equals("org.cyanogenmod.dotcase.REDRAW")) {
+            } else if (intent.getAction().equals(Dotcase.ACTION_REDRAW)) {
                 postInvalidate();
             }
         }
