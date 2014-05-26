@@ -58,6 +58,13 @@ public class Dotcase extends Activity
     public static final String ACTION_PHONE_RINGING = "org.cyanogenmod.dotcase.PHONE_RINGING";
     public static final String ACTION_REDRAW = "org.cyanogenmod.dotcase.REDRAW";
 
+    public static final String NOTIFICATION_GMAIL = "org.cyanogenmod.dotcase.notification.GMAIL";
+    public static final String NOTIFICATION_HANGOUTS = "org.cyanogenmod.dotcase.notification.HANGOUTS";
+    public static final String NOTIFICATION_MISSED_CALL = "org.cyanogenmod.dotcase.notification.MISSED_CALL";
+    public static final String NOTIFICATION_GMAIL_CANCEL = "org.cyanogenmod.dotcase.notification.GMAIL_CANCEL";
+    public static final String NOTIFICATION_HANGOUTS_CANCEL = "org.cyanogenmod.dotcase.notification.HANGOUTS_CANCEL";
+    public static final String NOTIFICATION_MISSED_CALL_CANCEL = "org.cyanogenmod.dotcase.notification.MISSED_CALL_CANCEL";
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {

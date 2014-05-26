@@ -44,6 +44,10 @@ public class DrawView extends View {
     private static boolean ringing = false;
     private static int ringCounter = 0;
     private static boolean ringerSwitcher = false;
+    private static boolean gmail = false;
+    private static boolean hangouts = false;
+    private static boolean missed_call = false;
+    private int heartbeat = 0;
 
     public DrawView(Context context) {
         super(context);
@@ -54,13 +58,21 @@ public class DrawView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         drawTime(canvas);
-
         if (!ringing) {
-            drawBattery(canvas);
-//            TODO
-//            drawGmail(canvas);
-//            drawHangouts(canvas);
-//            drawWeather(canvas);
+            if (gmail == true || hangouts == true || missed_call == true) {
+                if (heartbeat < 3) {
+                    drawNotifications(canvas);
+                } else {
+                    drawBattery(canvas);
+                }
+                heartbeat++;
+                if (heartbeat > 5) {
+                    heartbeat = 0;
+                }
+            } else {
+                drawBattery(canvas);
+                heartbeat = 0;
+            }
         } else {
             drawRinger(canvas);
         }
@@ -68,7 +80,34 @@ public class DrawView extends View {
         filter.addAction(Dotcase.ACTION_DONE_RINGING);
         filter.addAction(Dotcase.ACTION_PHONE_RINGING);
         filter.addAction(Dotcase.ACTION_REDRAW);
+        filter.addAction(Dotcase.NOTIFICATION_HANGOUTS);
+        filter.addAction(Dotcase.NOTIFICATION_HANGOUTS_CANCEL);
+        filter.addAction(Dotcase.NOTIFICATION_GMAIL);
+        filter.addAction(Dotcase.NOTIFICATION_GMAIL_CANCEL);
+        filter.addAction(Dotcase.NOTIFICATION_MISSED_CALL);
+        filter.addAction(Dotcase.NOTIFICATION_MISSED_CALL_CANCEL);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
+    }
+
+    private void drawNotifications(Canvas canvas) {
+        int count = 0;
+        int x = 1;
+        int y = 34;
+
+        if (gmail) {
+            drawGmail(canvas, x + (count * 9), y);
+            count++;
+        }
+
+        if (hangouts) {
+            drawHangouts(canvas, x + (count * 9), y);
+            count++;
+        }
+
+        if (missed_call) {
+            drawMissedCall(canvas, x + (count * 9), y);
+            count++;
+        }
     }
 
     private void drawRinger(Canvas canvas) {
@@ -135,7 +174,7 @@ public class DrawView extends View {
         return;
     }
 
-    private void drawHangouts(Canvas canvas) {
+    private void drawHangouts(Canvas canvas, int x, int y) {
         int[][] hangoutsSprite = {
                                   {0, 3, 3, 3, 3, 3, 0},
                                   {3, 3, 1, 3, 1, 3, 3},
@@ -144,10 +183,22 @@ public class DrawView extends View {
                                   {0, 0, 0, 3, 3, 0, 0},
                                   {0, 0, 0, 3, 0, 0, 0}};
 
-        dotcaseDrawSprite(hangoutsSprite, 10, 29, canvas);
+        dotcaseDrawSprite(hangoutsSprite, x, y, canvas);
     }
 
-    private void drawGmail(Canvas canvas) {
+    private void drawMissedCall(Canvas canvas, int x, int y) {
+        int[][] missedCallSprite = {
+                                  {0, 1, 0, 0, 0, 1, 0},
+                                  {0, 0, 1, 0, 1, 0, 0},
+                                  {0, 0, 0, 1, 0, 0, 0},
+                                  {0, 7, 7, 7, 7, 7, 0},
+                                  {7, 7, 7, 7, 7, 7, 7},
+                                  {7, 7, 0, 0, 0, 7, 7}};
+
+        dotcaseDrawSprite(missedCallSprite, x, y, canvas);
+    }
+
+    private void drawGmail(Canvas canvas, int x, int y) {
         int[][] gmailSprite = {
                                {2, 1, 1, 1, 1, 1, 2},
                                {2, 2, 1, 1, 1, 2, 2},
@@ -156,7 +207,7 @@ public class DrawView extends View {
                                {2, 1, 1, 1, 1, 1, 2},
                                {2, 1, 1, 1, 1, 1, 2}};
 
-        dotcaseDrawSprite(gmailSprite, 1, 29, canvas);
+        dotcaseDrawSprite(gmailSprite, x, y, canvas);
     }
 
     private void drawBattery(Canvas canvas) {
@@ -515,6 +566,18 @@ public class DrawView extends View {
                 ringing = false;
             } else if (intent.getAction().equals(Dotcase.ACTION_REDRAW)) {
                 postInvalidate();
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_HANGOUTS)) {
+                hangouts = true;
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_HANGOUTS_CANCEL)) {
+                hangouts = false;
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_GMAIL)) {
+                gmail = true;
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_GMAIL_CANCEL)) {
+                gmail = false;
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_MISSED_CALL)) {
+                missed_call = true;
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_MISSED_CALL_CANCEL)) {
+                missed_call = false;
             }
         }
     };

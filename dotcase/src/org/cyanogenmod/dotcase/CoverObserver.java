@@ -20,6 +20,7 @@
 
 package org.cyanogenmod.dotcase;
 
+import android.app.INotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,8 +30,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UEventObserver;
+import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -46,6 +50,7 @@ class CoverObserver extends UEventObserver {
     private final WakeLock mWakeLock;
     private final IntentFilter filter = new IntentFilter();
     private PowerManager manager;
+    private INotificationManager mNoMan;
 
     private int oldBrightness = -1;
     private int oldBrightnessMode = -1;
@@ -124,6 +129,7 @@ class CoverObserver extends UEventObserver {
                 }
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 crankUpBrightness();
+                checkNotifications();
                 intent.setAction(Dotcase.ACTION_REDRAW);
                 mContext.sendBroadcast(intent);
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
@@ -133,6 +139,52 @@ class CoverObserver extends UEventObserver {
             }
         }
     };
+
+    private void checkNotifications() {
+        StatusBarNotification[] nots = null;
+        try {
+            mNoMan = INotificationManager.Stub.asInterface(
+                     ServiceManager.getService(Context.NOTIFICATION_SERVICE));
+            nots = mNoMan.getActiveNotifications(mContext.getPackageName());
+        } catch (Exception ex) {}
+        if (nots != null) {
+            Intent intent = new Intent();
+            boolean gmail = false;
+            boolean hangouts = false;
+            boolean missed_call = false;
+            for (int i = 0; i < nots.length; i++) {
+                if (nots[i].getPackageName().equals("com.google.android.gm") && gmail == false) {
+                    gmail = true;
+                    intent.setAction(Dotcase.NOTIFICATION_GMAIL);
+                    mContext.sendBroadcast(intent);
+                } else if (nots[i].getPackageName().equals("com.google.android.talk") && hangouts == false) {
+                    hangouts = true;
+                    intent.setAction(Dotcase.NOTIFICATION_HANGOUTS);
+                    mContext.sendBroadcast(intent);
+                } else if (nots[i].getPackageName().equals("com.android.phone") && missed_call == false) {
+                    missed_call = true;
+                    intent.setAction(Dotcase.NOTIFICATION_MISSED_CALL);
+                    mContext.sendBroadcast(intent);
+                }
+            }
+
+            if (gmail == false) {
+                intent.setAction(Dotcase.NOTIFICATION_GMAIL_CANCEL);
+                mContext.sendBroadcast(intent);
+            }
+
+            if (hangouts == false) {
+                intent.setAction(Dotcase.NOTIFICATION_HANGOUTS_CANCEL);
+                mContext.sendBroadcast(intent);
+            }
+
+            if (missed_call == false) {
+                intent.setAction(Dotcase.NOTIFICATION_MISSED_CALL_CANCEL);
+                mContext.sendBroadcast(intent);
+            }
+
+        }
+    }
 
     private void crankUpBrightness() {
         if (needStoreOldBrightness) {
