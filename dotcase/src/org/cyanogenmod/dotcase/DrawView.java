@@ -116,7 +116,10 @@ public class DrawView extends View {
 
         for (int i = 0; i < ringerSprite.length; i++) {
             for (int j = 0; j < ringerSprite[0].length; j++) {
-                ringerSprite[i][j] = ringerSprite[i][j] == 3 - ringCounter ? light : ringerSprite[i][j] > 0 ? dark : 0;
+                if (ringerSprite[i][j] > 0) {
+                    ringerSprite[i][j] =
+                          ringerSprite[i][j] == 3 - ringCounter ? light : dark;
+                }
             }
         }
 
