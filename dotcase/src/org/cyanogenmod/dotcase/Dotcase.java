@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.telephony.TelephonyManager;
@@ -38,7 +39,6 @@ import android.view.WindowManager;
 import com.android.internal.telephony.ITelephony;
 
 import java.lang.Math;
-import java.lang.reflect.Method;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
@@ -160,13 +160,8 @@ public class Dotcase extends Activity
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (Math.abs(distanceY) > 60) {
                 try {
-                    TelephonyManager telephony = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-                    mContext.getSystemService(Context.TELEPHONY_SERVICE);
-                    Class c = Class.forName(telephony.getClass().getName());
-                    Method m = c.getDeclaredMethod("getITelephony");
-                    m.setAccessible(true);
-                    telephonyService = (ITelephony) m.invoke(telephony);
-                    telephonyService.silenceRinger();
+                    ITelephony telephonyService = ITelephony.Stub.asInterface(
+                                        ServiceManager.checkService(Context.TELEPHONY_SERVICE));
                     if (distanceY < 60) {
                         telephonyService.endCall();
                     } else if (distanceY > 60) {
