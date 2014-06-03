@@ -33,10 +33,8 @@ import android.os.PowerManager.WakeLock;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UEventObserver;
-import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -44,13 +42,11 @@ import java.io.FileReader;
 class CoverObserver extends UEventObserver {
     private static final String TAG = "DotcaseCoverObserver";
     private static final String COVER_UEVENT_MATCH = "DEVPATH=/devices/virtual/switch/cover";
-    private static final String COVER_STATE_PATH = "/sys/class/switch/cover/state";
 
     private final Context mContext;
     private final WakeLock mWakeLock;
     private final IntentFilter filter = new IntentFilter();
     private PowerManager manager;
-    private INotificationManager mNoMan;
 
     private int oldBrightness = -1;
     private int oldBrightnessMode = -1;
@@ -64,13 +60,6 @@ class CoverObserver extends UEventObserver {
     }
 
     public synchronized final void init() {
-        char[] buffer = new char[1024];
-        try {
-            BufferedReader closed = new BufferedReader(new FileReader(COVER_STATE_PATH));
-            String value = closed.readLine();
-            closed.close();
-        } catch (Exception e) {}
-
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 
@@ -135,7 +124,6 @@ class CoverObserver extends UEventObserver {
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);
-                return;
             }
         }
     };
@@ -143,7 +131,7 @@ class CoverObserver extends UEventObserver {
     private void checkNotifications() {
         StatusBarNotification[] nots = null;
         try {
-            mNoMan = INotificationManager.Stub.asInterface(
+            INotificationManager mNoMan = INotificationManager.Stub.asInterface(
                      ServiceManager.getService(Context.NOTIFICATION_SERVICE));
             nots = mNoMan.getActiveNotifications(mContext.getPackageName());
         } catch (Exception ex) {}
@@ -151,35 +139,48 @@ class CoverObserver extends UEventObserver {
             Intent intent = new Intent();
             boolean gmail = false;
             boolean hangouts = false;
+            boolean twitter = false;
             boolean missed_call = false;
             for (int i = 0; i < nots.length; i++) {
-                if (nots[i].getPackageName().equals("com.google.android.gm") && gmail == false) {
+                intent.setAction(Dotcase.NOTIFICATION);
+                if (nots[i].getPackageName().equals("com.google.android.gm") && !gmail) {
                     gmail = true;
-                    intent.setAction(Dotcase.NOTIFICATION_GMAIL);
+                    intent.putExtra("name", "gmail");
                     mContext.sendBroadcast(intent);
-                } else if (nots[i].getPackageName().equals("com.google.android.talk") && hangouts == false) {
+                } else if (nots[i].getPackageName().equals("com.google.android.talk") && !hangouts) {
                     hangouts = true;
-                    intent.setAction(Dotcase.NOTIFICATION_HANGOUTS);
+                    intent.putExtra("name", "hangouts");
                     mContext.sendBroadcast(intent);
-                } else if (nots[i].getPackageName().equals("com.android.phone") && missed_call == false) {
+                } else if (nots[i].getPackageName().equals("com.twitter.android") && !twitter) {
+                    twitter = true;
+                    intent.putExtra("name", "twitter");
+                    mContext.sendBroadcast(intent);
+                } else if (nots[i].getPackageName().equals("com.android.phone") && !missed_call) {
                     missed_call = true;
-                    intent.setAction(Dotcase.NOTIFICATION_MISSED_CALL);
+                    intent.putExtra("name", "missed_call");
                     mContext.sendBroadcast(intent);
                 }
             }
 
-            if (gmail == false) {
-                intent.setAction(Dotcase.NOTIFICATION_GMAIL_CANCEL);
+            intent.setAction(Dotcase.NOTIFICATION_CANCEL);
+
+            if (!gmail) {
+                intent.putExtra("name", "gmail");
                 mContext.sendBroadcast(intent);
             }
 
-            if (hangouts == false) {
-                intent.setAction(Dotcase.NOTIFICATION_HANGOUTS_CANCEL);
+            if (!hangouts) {
+                intent.putExtra("name", "hangouts");
                 mContext.sendBroadcast(intent);
             }
 
-            if (missed_call == false) {
-                intent.setAction(Dotcase.NOTIFICATION_MISSED_CALL_CANCEL);
+            if (!twitter) {
+                intent.putExtra("name", "twitter");
+                mContext.sendBroadcast(intent);
+            }
+
+            if (!missed_call) {
+                intent.putExtra("name", "missed_call");
                 mContext.sendBroadcast(intent);
             }
 
@@ -206,7 +207,7 @@ class CoverObserver extends UEventObserver {
     }
 
     public void killActivity() {
-        if (oldBrightnessMode != -1 && oldBrightness != -1 && needStoreOldBrightness == false) {
+        if (oldBrightnessMode != -1 && oldBrightness != -1 && !needStoreOldBrightness) {
             Settings.System.putInt(mContext.getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS_MODE,
                     oldBrightnessMode);

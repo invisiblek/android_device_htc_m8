@@ -29,8 +29,6 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.util.Log;
-import android.telephony.TelephonyManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,7 +45,6 @@ public class Dotcase extends Activity
     private static final String TAG = "Dotcase";
     private static final String COVER_NODE = "/sys/android_touch/cover";
     private final IntentFilter filter = new IntentFilter();
-    private ITelephony telephonyService;
     private GestureDetector mDetector;
     private PowerManager manager;
     private Context mContext;
@@ -58,12 +55,8 @@ public class Dotcase extends Activity
     public static final String ACTION_PHONE_RINGING = "org.cyanogenmod.dotcase.PHONE_RINGING";
     public static final String ACTION_REDRAW = "org.cyanogenmod.dotcase.REDRAW";
 
-    public static final String NOTIFICATION_GMAIL = "org.cyanogenmod.dotcase.notification.GMAIL";
-    public static final String NOTIFICATION_HANGOUTS = "org.cyanogenmod.dotcase.notification.HANGOUTS";
-    public static final String NOTIFICATION_MISSED_CALL = "org.cyanogenmod.dotcase.notification.MISSED_CALL";
-    public static final String NOTIFICATION_GMAIL_CANCEL = "org.cyanogenmod.dotcase.notification.GMAIL_CANCEL";
-    public static final String NOTIFICATION_HANGOUTS_CANCEL = "org.cyanogenmod.dotcase.notification.HANGOUTS_CANCEL";
-    public static final String NOTIFICATION_MISSED_CALL_CANCEL = "org.cyanogenmod.dotcase.notification.MISSED_CALL_CANCEL";
+    public static final String NOTIFICATION = "org.cyanogenmod.dotcase.notification.START";
+    public static final String NOTIFICATION_CANCEL = "org.cyanogenmod.dotcase.notification.CANCEL";
 
     @Override
     public void onCreate(Bundle savedInstanceState)

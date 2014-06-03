@@ -38,7 +38,6 @@ public class DrawView extends View {
     // 1920x1080 = 48 x 27 dots @ 40 pixels per dot
     private static final String TAG = "DotcaseDrawView";
     private final Context mContext;
-    private float dotratio = 40;
     private Paint paint = new Paint();
     private final IntentFilter filter = new IntentFilter();
     private static boolean ringing = false;
@@ -46,6 +45,7 @@ public class DrawView extends View {
     private static boolean ringerSwitcher = false;
     private static boolean gmail = false;
     private static boolean hangouts = false;
+    private static boolean twitter = false;
     private static boolean missed_call = false;
     private int heartbeat = 0;
 
@@ -59,7 +59,7 @@ public class DrawView extends View {
     public void onDraw(Canvas canvas) {
         drawTime(canvas);
         if (!ringing) {
-            if (gmail == true || hangouts == true || missed_call == true) {
+            if (gmail || hangouts || missed_call || twitter) {
                 if (heartbeat < 3) {
                     drawNotifications(canvas);
                 } else {
@@ -80,32 +80,33 @@ public class DrawView extends View {
         filter.addAction(Dotcase.ACTION_DONE_RINGING);
         filter.addAction(Dotcase.ACTION_PHONE_RINGING);
         filter.addAction(Dotcase.ACTION_REDRAW);
-        filter.addAction(Dotcase.NOTIFICATION_HANGOUTS);
-        filter.addAction(Dotcase.NOTIFICATION_HANGOUTS_CANCEL);
-        filter.addAction(Dotcase.NOTIFICATION_GMAIL);
-        filter.addAction(Dotcase.NOTIFICATION_GMAIL_CANCEL);
-        filter.addAction(Dotcase.NOTIFICATION_MISSED_CALL);
-        filter.addAction(Dotcase.NOTIFICATION_MISSED_CALL_CANCEL);
+        filter.addAction(Dotcase.NOTIFICATION);
+        filter.addAction(Dotcase.NOTIFICATION_CANCEL);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
     private void drawNotifications(Canvas canvas) {
         int count = 0;
         int x = 1;
-        int y = 34;
+        int y = 30;
 
         if (gmail) {
-            drawGmail(canvas, x + (count * 9), y);
+            drawGmail(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
             count++;
         }
 
         if (hangouts) {
-            drawHangouts(canvas, x + (count * 9), y);
+            drawHangouts(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
+            count++;
+        }
+
+        if (twitter) {
+            drawTwitter(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
             count++;
         }
 
         if (missed_call) {
-            drawMissedCall(canvas, x + (count * 9), y);
+            drawMissedCall(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
             count++;
         }
     }
@@ -167,7 +168,7 @@ public class DrawView extends View {
 
         ringCounter++;
         if (ringCounter > 2) {
-            ringerSwitcher = ringerSwitcher ? false : true;
+            ringerSwitcher = !ringerSwitcher;
             ringCounter = 0;
         }
 
@@ -176,36 +177,56 @@ public class DrawView extends View {
 
     private void drawHangouts(Canvas canvas, int x, int y) {
         int[][] hangoutsSprite = {
+                                  {0, 0, 0, 0, 0, 0, 0},
                                   {0, 3, 3, 3, 3, 3, 0},
                                   {3, 3, 1, 3, 1, 3, 3},
                                   {3, 3, 1, 3, 1, 3, 3},
                                   {0, 3, 3, 3, 3, 3, 0},
                                   {0, 0, 0, 3, 3, 0, 0},
-                                  {0, 0, 0, 3, 0, 0, 0}};
+                                  {0, 0, 0, 3, 0, 0, 0},
+                                  {0, 0, 0, 0, 0, 0, 0},};
 
         dotcaseDrawSprite(hangoutsSprite, x, y, canvas);
     }
 
+    private void drawTwitter(Canvas canvas, int x, int y) {
+        int[][] twitterSprite = {
+                                 {9, 9, 9, 9, 9, 9, 9},
+                                 {9, 9, 1, 1, 9, 9, 9},
+                                 {9, 9, 1, 1, 1, 1, 9},
+                                 {9, 9, 1, 1, 1, 1, 9},
+                                 {9, 9, 1, 1, 9, 9, 9},
+                                 {9, 9, 1, 1, 1, 1, 9},
+                                 {9, 9, 9, 1, 1, 1, 9},
+                                 {9, 9, 9, 9, 9, 9, 9}};
+
+        dotcaseDrawSprite(twitterSprite, x, y, canvas);
+    }
+
     private void drawMissedCall(Canvas canvas, int x, int y) {
         int[][] missedCallSprite = {
+                                  {0, 0, 0, 0, 0, 0, 0},
                                   {0, 1, 0, 0, 0, 1, 0},
                                   {0, 0, 1, 0, 1, 0, 0},
                                   {0, 0, 0, 1, 0, 0, 0},
                                   {0, 7, 7, 7, 7, 7, 0},
                                   {7, 7, 7, 7, 7, 7, 7},
-                                  {7, 7, 0, 0, 0, 7, 7}};
+                                  {7, 7, 0, 0, 0, 7, 7},
+                                  {0, 0, 0, 0, 0, 0, 0},};
 
         dotcaseDrawSprite(missedCallSprite, x, y, canvas);
     }
 
     private void drawGmail(Canvas canvas, int x, int y) {
         int[][] gmailSprite = {
+                               {0, 0, 0, 0, 0, 0, 0},
                                {2, 1, 1, 1, 1, 1, 2},
                                {2, 2, 1, 1, 1, 2, 2},
                                {2, 1, 2, 1, 2, 1, 2},
                                {2, 1, 1, 2, 1, 1, 2},
                                {2, 1, 1, 1, 1, 1, 2},
-                               {2, 1, 1, 1, 1, 1, 2}};
+                               {2, 1, 1, 1, 1, 1, 2},
+                               {0, 0, 0, 0, 0, 0, 0}};
 
         dotcaseDrawSprite(gmailSprite, x, y, canvas);
     }
@@ -229,7 +250,7 @@ public class DrawView extends View {
         dotcaseDrawRect(1, 35, 2, 47, 1, canvas);    // left line
 
         // 4.34 percents per dot
-        int fillDots = (int)Math.round((level*100)/4.34);
+        int fillDots = (int)Math.round((level * 100) / 4.34);
         int color;
 
         if (level >= .50) {
@@ -249,29 +270,19 @@ public class DrawView extends View {
         }
 
         if (plugged > 0) {
-            int[][] blackSprite = {
-                               {-1, -1, -1, -1,  0,  0, -1, -1},
-                               {-1, -1, -1,  0, -1,  0, -1, -1},
-                               {-1, -1,  0, -1, -1,  0, -1, -1},
-                               {-1,  0, -1, -1, -1,  0, -1, -1},
-                               { 0, -1, -1, -1, -1,  0,  0,  0},
-                               { 0,  0,  0, -1, -1, -1, -1,  0},
-                               {-1, -1,  0, -1, -1, -1,  0, -1},
-                               {-1, -1,  0, -1, -1,  0, -1, -1},
-                               {-1, -1,  0, -1,  0, -1, -1, -1},
-                               {-1, -1,  0,  0, -1, -1, -1, -1}};
-            dotcaseDrawSprite(blackSprite, 9, 36, canvas);
-
             int[][] lightningSprite = {
-                               {-1, -1, -1,  7, -1, -1},
-                               {-1, -1,  7,  7, -1, -1},
-                               {-1,  7,  7,  7, -1, -1},
-                               { 7,  7,  7,  7, -1, -1},
-                               {-1, -1,  7,  7,  7,  7},
-                               {-1, -1,  7,  7,  7, -1},
-                               {-1, -1,  7,  7, -1, -1},
-                               {-1, -1,  7, -1, -1, -1}};
-            dotcaseDrawSprite(lightningSprite, 10, 37, canvas);
+                               {-1, -1, -1, -1,  0,  0, -1, -1},
+                               {-1, -1, -1,  0,  7,  0, -1, -1},
+                               {-1, -1,  0,  7,  7,  0, -1, -1},
+                               {-1,  0,  7,  7,  7,  0, -1, -1},
+                               { 0,  7,  7,  7,  7,  0,  0,  0},
+                               { 0,  0,  0,  7,  7,  7,  7,  0},
+                               {-1, -1,  0,  7,  7,  7,  0, -1},
+                               {-1, -1,  0,  7,  7,  0, -1, -1},
+                               {-1, -1,  0,  7,  0, -1, -1, -1},
+                               {-1, -1,  0,  0, -1, -1, -1, -1}};
+
+            dotcaseDrawSprite(lightningSprite, 10, 36, canvas);
         }
     }
 
@@ -315,7 +326,7 @@ public class DrawView extends View {
             y = 5;
 
             if (i == 0) {
-                x = starter + 0;
+                x = starter;
             } else if (i == 1) {
                 x = starter + 5;
             } else if (i == 2) {
@@ -481,6 +492,7 @@ public class DrawView extends View {
     }
 
     private void dotcaseDrawPixel(int x, int y, Paint paint, Canvas canvas) {
+        float dotratio = 40;
         canvas.drawRect((float)(x * dotratio + 5),
                         (float)(y * dotratio + 5),
                         (float)((x + 1) * dotratio -5),
@@ -560,24 +572,28 @@ public class DrawView extends View {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String name = "";
+
             if (intent.getAction().equals(Dotcase.ACTION_PHONE_RINGING)) {
                 phoneRinging(TelephonyManager.EXTRA_INCOMING_NUMBER);
             } else if (intent.getAction().equals(Dotcase.ACTION_DONE_RINGING)) {
                 ringing = false;
             } else if (intent.getAction().equals(Dotcase.ACTION_REDRAW)) {
                 postInvalidate();
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_HANGOUTS)) {
-                hangouts = true;
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_HANGOUTS_CANCEL)) {
-                hangouts = false;
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_GMAIL)) {
-                gmail = true;
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_GMAIL_CANCEL)) {
-                gmail = false;
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_MISSED_CALL)) {
-                missed_call = true;
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_MISSED_CALL_CANCEL)) {
-                missed_call = false;
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION)) {
+                name = intent.getExtras().getString("name");
+                if (name.equals("gmail")) { gmail = true;
+                } else if (name.equals("hangouts")) { hangouts = true;
+                } else if (name.equals("twitter")) { twitter = true;
+                } else if (name.equals("missed_call")) { missed_call = true;
+                }
+            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_CANCEL)) {
+                name = intent.getExtras().getString("name");
+                if (name.equals("gmail")) { gmail = false;
+                } else if (name.equals("hangouts")) { hangouts = false;
+                } else if (name.equals("twitter")) { twitter = false;
+                } else if (name.equals("missed_call")) { missed_call = false;
+                }
             }
         }
     };
