@@ -111,6 +111,7 @@ class CoverObserver extends UEventObserver {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 if (state.equals("RINGING")) {
                     intent.setAction(Dotcase.ACTION_PHONE_RINGING);
+                    intent.putExtra("number", intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
                     mContext.sendBroadcast(intent);
                 } else {
                     intent.setAction(Dotcase.ACTION_DONE_RINGING);

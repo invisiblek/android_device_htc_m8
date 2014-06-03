@@ -43,6 +43,7 @@ public class DrawView extends View {
     private static boolean ringing = false;
     private static int ringCounter = 0;
     private static boolean ringerSwitcher = false;
+    private static String phoneNumber;
     private static boolean gmail = false;
     private static boolean hangouts = false;
     private static boolean twitter = false;
@@ -57,8 +58,9 @@ public class DrawView extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        drawTime(canvas);
         if (!ringing) {
+            drawTime(canvas);
+
             if (gmail || hangouts || missed_call || twitter) {
                 if (heartbeat < 3) {
                     drawNotifications(canvas);
@@ -74,6 +76,7 @@ public class DrawView extends View {
                 heartbeat = 0;
             }
         } else {
+            drawNumber(canvas);
             drawRinger(canvas);
         }
 
@@ -90,6 +93,11 @@ public class DrawView extends View {
         int x = 1;
         int y = 30;
 
+        if (missed_call) {
+            drawMissedCall(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
+            count++;
+        }
+
         if (gmail) {
             drawGmail(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
             count++;
@@ -102,12 +110,6 @@ public class DrawView extends View {
 
         if (twitter) {
             drawTwitter(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
-            count++;
-        }
-
-        if (missed_call) {
-            drawMissedCall(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
-            count++;
         }
     }
 
@@ -344,148 +346,233 @@ public class DrawView extends View {
         int[][] sprite;
         switch (c) {
             case '0': sprite = new int[][]
-                               {{-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1}};
-                      break;
+                           {{-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1}};
+                break;
             case '1': sprite = new int[][]
-                               {{-1, -1,  9, -1},
-                                {-1,  9,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1,  9,  9,  9}};
-                      break;
+                           {{-1, -1,  9, -1},
+                            {-1,  9,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1,  9,  9,  9}};
+                break;
             case '2': sprite = new int[][]
-                               {{-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1,  9, -1},
-                                {-1, -1,  9, -1},
-                                {-1,  9, -1, -1},
-                                {-1,  9, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9,  9,  9,  9}};
-                      break;
+                           {{-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1,  9, -1},
+                            {-1, -1,  9, -1},
+                            {-1,  9, -1, -1},
+                            {-1,  9, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9,  9,  9,  9}};
+                break;
             case '3': sprite = new int[][]
-                               {{-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1,  9,  9, -1},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1}};
-                      break;
+                           {{-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1,  9,  9, -1},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1}};
+                break;
             case '4': sprite = new int[][]
-                               {{ 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9,  9,  9,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9}};
-                      break;
+                           {{ 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9,  9,  9,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9}};
+                break;
             case '5': sprite = new int[][]
-                               {{ 9,  9,  9,  9},
-                                { 9, -1, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9,  9,  9, -1},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1}};
-                      break;
+                           {{ 9,  9,  9,  9},
+                            { 9, -1, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9,  9,  9, -1},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1}};
+                break;
             case '6': sprite = new int[][]
-                               {{-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9, -1, -1, -1},
-                                { 9,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1}};
-                      break;
+                           {{-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9, -1, -1, -1},
+                            { 9,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1}};
+                break;
             case '7': sprite = new int[][]
-                               {{ 9,  9,  9,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9}};
-                      break;
+                           {{ 9,  9,  9,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9}};
+                break;
             case '8': sprite = new int[][]
-                               {{-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1}};
-                      break;
+                           {{-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1}};
+                break;
             case '9': sprite = new int[][]
-                               {{-1,  9,  9, -1},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                {-1, -1, -1,  9},
-                                { 9, -1, -1,  9},
-                                {-1,  9,  9, -1}};
-                      break;
+                           {{-1,  9,  9, -1},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            {-1, -1, -1,  9},
+                            { 9, -1, -1,  9},
+                            {-1,  9,  9, -1}};
+                break;
             default: sprite = new int[][]
-                               {{-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1},
-                                {-1, -1, -1, -1}};
-                     break;
+                           {{-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1},
+                            {-1, -1, -1, -1}};
+                break;
+        }
+
+        return sprite;
+    }
+
+    public int[][] getSmallSprite(char c) {
+        int[][] sprite;
+        switch (c) {
+            case '0': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            { 9, -1,  9},
+                            { 9, -1,  9},
+                            { 9, -1,  9},
+                            { 9,  9,  9}};
+                break;
+            case '1': sprite = new int[][]
+                           {{ 9,  9, -1},
+                            {-1,  9, -1},
+                            {-1,  9, -1},
+                            {-1,  9, -1},
+                            { 9,  9,  9}};
+                break;
+            case '2': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            {-1, -1,  9},
+                            { 9,  9,  9},
+                            { 9, -1, -1},
+                            { 9,  9,  9}};
+                break;
+            case '3': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            {-1, -1,  9},
+                            { 9,  9,  9},
+                            {-1, -1,  9},
+                            { 9,  9,  9}};
+                break;
+            case '4': sprite = new int[][]
+                           {{ 9, -1,  9},
+                            { 9, -1,  9},
+                            { 9,  9,  9},
+                            {-1, -1,  9},
+                            {-1, -1,  9}};
+                break;
+            case '5': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            { 9, -1, -1},
+                            { 9,  9,  9},
+                            {-1, -1,  9},
+                            { 9,  9,  9}};
+                break;
+            case '6': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            { 9, -1, -1},
+                            { 9,  9,  9},
+                            { 9, -1,  9},
+                            { 9,  9,  9}};
+                break;
+            case '7': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            {-1, -1,  9},
+                            {-1, -1,  9},
+                            {-1, -1,  9},
+                            {-1, -1,  9}};
+                break;
+            case '8': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            { 9, -1,  9},
+                            { 9,  9,  9},
+                            { 9, -1,  9},
+                            { 9,  9,  9}};
+                break;
+            case '9': sprite = new int[][]
+                           {{ 9,  9,  9},
+                            { 9, -1,  9},
+                            { 9,  9,  9},
+                            {-1, -1,  9},
+                            { 9,  9,  9}};
+                break;
+            default: sprite = new int[][]
+                           {{-1, -1, -1},
+                            {-1, -1, -1},
+                            {-1, -1, -1},
+                            {-1, -1, -1},
+                            {-1, -1, -1}};
+                break;
         }
 
         return sprite;
@@ -575,7 +662,11 @@ public class DrawView extends View {
             String name = "";
 
             if (intent.getAction().equals(Dotcase.ACTION_PHONE_RINGING)) {
-                phoneRinging(TelephonyManager.EXTRA_INCOMING_NUMBER);
+                Log.e(TAG, "Phone Number: " + intent.getExtras().getString("number"));
+                phoneNumber = intent.getExtras().getString("number");
+                ringing = true;
+                ringCounter = 0;
+                ringerSwitcher = false;
             } else if (intent.getAction().equals(Dotcase.ACTION_DONE_RINGING)) {
                 ringing = false;
             } else if (intent.getAction().equals(Dotcase.ACTION_REDRAW)) {
@@ -598,10 +689,14 @@ public class DrawView extends View {
         }
     };
 
-    private void phoneRinging(String number) {
-        ringing = true;
-        ringCounter = 0;
-        ringerSwitcher = false;
-        Log.e(TAG, "Phone Number: " + number);
+    private void drawNumber(Canvas canvas) {
+        int[][] sprite;
+        int x = 0, y = 5;
+        if (ringing) {
+            for (int i = 3; i < phoneNumber.length(); i++) {
+                sprite = getSmallSprite(phoneNumber.charAt(i));
+                dotcaseDrawSprite(sprite, x + (i - 3) * 4, y, canvas);
+            }
+        }
     }
 }
