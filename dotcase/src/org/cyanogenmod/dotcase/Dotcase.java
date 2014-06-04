@@ -140,16 +140,16 @@ public class Dotcase extends Activity
 
     public static void checkNotifications() {
         StatusBarNotification[] nots = null;
+        gmail = false;
+        hangouts = false;
+        twitter = false;
+        missed_call = false;
         try {
             INotificationManager mNoMan = INotificationManager.Stub.asInterface(
                     ServiceManager.getService(Context.NOTIFICATION_SERVICE));
             nots = mNoMan.getActiveNotifications(mContext.getPackageName());
         } catch (Exception ex) {}
         if (nots != null) {
-            gmail = false;
-            hangouts = false;
-            twitter = false;
-            missed_call = false;
             for (StatusBarNotification not : nots) {
                 if (not.getPackageName().equals("com.google.android.gm") && !gmail) {
                     gmail = true;

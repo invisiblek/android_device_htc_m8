@@ -200,43 +200,26 @@ public class DrawView extends View {
 
     private void drawTime(Canvas canvas) {
         int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String hours;
-        String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10) ?
-                         "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)) :
-                         Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
+        hour_of_day = hour_of_day > 12 ? hour_of_day - 12 : hour_of_day;
+        hour_of_day = hour_of_day == 0 ? 12 : hour_of_day;
 
-        if (hour_of_day > 12) {
-            hour_of_day = hour_of_day - 12;
-        } else if (hour_of_day == 0) {
-            hour_of_day = 12;
-        }
-
-        if (hour_of_day < 10) {
-            hours = " " + Integer.toString(hour_of_day);
-        } else {
-            hours = Integer.toString(hour_of_day);
-        }
+        String hours = hour_of_day < 10 ? " " + Integer.toString(hour_of_day) : Integer.toString(hour_of_day);
+        String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10)
+                         ? "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE))
+                         : Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
 
         String time = hours + minutes;
 
-        int[][] sprite;
-        int x, y;
-        int starter;
+        int x, y = 5;
+        int starter = 0;
 
         if (hour_of_day > 9) {
             starter = 3;
-        } else {
-            starter = 0;
         }
 
-        dotcaseDrawPixel(starter + 10, 9, 9, canvas);
-        dotcaseDrawPixel(starter + 10, 12, 9, canvas);
+        dotcaseDrawSprite(DotcaseConstants.timeColon, starter + 10, y + 4, canvas);
 
         for (int i = 0; i < time.length(); i++) {
-            sprite = DotcaseConstants.getSprite(time.charAt(i));
-
-            y = 5;
-
             if (i == 0) {
                 x = starter;
             } else if (i == 1) {
@@ -247,7 +230,7 @@ public class DrawView extends View {
                 x = starter + 17;
             }
 
-            dotcaseDrawSprite(sprite, x, y, canvas);
+            dotcaseDrawSprite(DotcaseConstants.getSprite(time.charAt(i)), x, y, canvas);
 
         }
     }
@@ -259,10 +242,6 @@ public class DrawView extends View {
                         ((x + 1) * dotratio -5),
                         ((y + 1) * dotratio -5),
                         paint);
-    }
-
-    private void dotcaseDrawPixel(int x, int y, int color, Canvas canvas) {
-        dotcaseDrawPixel(x, y, DotcaseConstants.getPaintFromNumber(color), canvas);
     }
 
     private void dotcaseDrawRect(int left, int top, int right, int bottom, int color, Canvas canvas) {

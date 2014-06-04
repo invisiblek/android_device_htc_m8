@@ -105,6 +105,12 @@ public class DotcaseConstants {
             {2, 1, 1, 1, 1, 1, 2},
             {0, 0, 0, 0, 0, 0, 0}};
 
+    static int[][] timeColon = {
+            {9},
+            {0},
+            {0},
+            {9}};
+
     static int[][] getSprite(char c) {
         int[][] sprite;
         switch (c) {
