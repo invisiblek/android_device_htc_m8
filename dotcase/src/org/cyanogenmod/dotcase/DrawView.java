@@ -52,8 +52,8 @@ public class DrawView extends View {
         if (!Dotcase.ringing) {
             drawTime(canvas);
             Dotcase.checkNotifications();
-
-            if (Dotcase.gmail || Dotcase.hangouts || Dotcase.mms || Dotcase.missed_call || Dotcase.twitter) {
+            if (Dotcase.gmail || Dotcase.hangouts || Dotcase.mms || Dotcase.missed_call
+                              || Dotcase.twitter  || Dotcase.voicemail) {
                 if (heartbeat < 3) {
                     drawNotifications(canvas);
                 } else {
@@ -80,9 +80,14 @@ public class DrawView extends View {
         int count = 0;
         int x = 1;
         int y = 30;
-
         if (Dotcase.missed_call) {
             dotcaseDrawSprite(DotcaseConstants.missedCallSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
+                    canvas);
+            count++;
+        }
+
+        if (Dotcase.voicemail) {
+            dotcaseDrawSprite(DotcaseConstants.voicemailSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
                     canvas);
             count++;
         }

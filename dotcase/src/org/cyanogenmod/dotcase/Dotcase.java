@@ -62,6 +62,7 @@ public class Dotcase extends Activity
     public static boolean twitter = false;
     public static boolean missed_call = false;
     public static boolean mms = false;
+    public static boolean voicemail = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -170,6 +171,9 @@ public class Dotcase extends Activity
                     missed_call = true;
                 } else if (not.getPackageName().equals("com.android.mms") && !mms) {
                     mms = true;
+                } else if (not.getPackageName().equals("com.google.android.apps.googlevoice") && !voicemail) {
+                    // add other voicemail apps here (t-mo, vzw?, etc...)
+                    voicemail = true;
                 }
             }
         }
