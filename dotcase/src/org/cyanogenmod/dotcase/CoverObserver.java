@@ -20,7 +20,6 @@
 
 package org.cyanogenmod.dotcase;
 
-import android.app.INotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,17 +29,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UEventObserver;
-import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 class CoverObserver extends UEventObserver {
-    private static final String TAG = "DotcaseCoverObserver";
     private static final String COVER_UEVENT_MATCH = "DEVPATH=/devices/virtual/switch/cover";
 
     private final Context mContext;
@@ -110,17 +103,17 @@ class CoverObserver extends UEventObserver {
             if (intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 if (state.equals("RINGING")) {
-                    intent.setAction(Dotcase.ACTION_PHONE_RINGING);
+                    intent.setAction(DotcaseConstants.ACTION_PHONE_RINGING);
                     intent.putExtra("number", intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
                     mContext.sendBroadcast(intent);
                 } else {
-                    intent.setAction(Dotcase.ACTION_DONE_RINGING);
+                    intent.setAction(DotcaseConstants.ACTION_DONE_RINGING);
                     mContext.sendBroadcast(intent);
                 }
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 crankUpBrightness();
-                checkNotifications();
-                intent.setAction(Dotcase.ACTION_REDRAW);
+                Dotcase.checkNotifications();
+                intent.setAction(DotcaseConstants.ACTION_REDRAW);
                 mContext.sendBroadcast(intent);
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -128,65 +121,6 @@ class CoverObserver extends UEventObserver {
             }
         }
     };
-
-    private void checkNotifications() {
-        StatusBarNotification[] nots = null;
-        try {
-            INotificationManager mNoMan = INotificationManager.Stub.asInterface(
-                     ServiceManager.getService(Context.NOTIFICATION_SERVICE));
-            nots = mNoMan.getActiveNotifications(mContext.getPackageName());
-        } catch (Exception ex) {}
-        if (nots != null) {
-            Intent intent = new Intent();
-            boolean gmail = false;
-            boolean hangouts = false;
-            boolean twitter = false;
-            boolean missed_call = false;
-            for (int i = 0; i < nots.length; i++) {
-                intent.setAction(Dotcase.NOTIFICATION);
-                if (nots[i].getPackageName().equals("com.google.android.gm") && !gmail) {
-                    gmail = true;
-                    intent.putExtra("name", "gmail");
-                    mContext.sendBroadcast(intent);
-                } else if (nots[i].getPackageName().equals("com.google.android.talk") && !hangouts) {
-                    hangouts = true;
-                    intent.putExtra("name", "hangouts");
-                    mContext.sendBroadcast(intent);
-                } else if (nots[i].getPackageName().equals("com.twitter.android") && !twitter) {
-                    twitter = true;
-                    intent.putExtra("name", "twitter");
-                    mContext.sendBroadcast(intent);
-                } else if (nots[i].getPackageName().equals("com.android.phone") && !missed_call) {
-                    missed_call = true;
-                    intent.putExtra("name", "missed_call");
-                    mContext.sendBroadcast(intent);
-                }
-            }
-
-            intent.setAction(Dotcase.NOTIFICATION_CANCEL);
-
-            if (!gmail) {
-                intent.putExtra("name", "gmail");
-                mContext.sendBroadcast(intent);
-            }
-
-            if (!hangouts) {
-                intent.putExtra("name", "hangouts");
-                mContext.sendBroadcast(intent);
-            }
-
-            if (!twitter) {
-                intent.putExtra("name", "twitter");
-                mContext.sendBroadcast(intent);
-            }
-
-            if (!missed_call) {
-                intent.putExtra("name", "missed_call");
-                mContext.sendBroadcast(intent);
-            }
-
-        }
-    }
 
     private void crankUpBrightness() {
         if (needStoreOldBrightness) {
@@ -220,7 +154,7 @@ class CoverObserver extends UEventObserver {
 
         try {
             Intent i = new Intent();
-            i.setAction(Dotcase.ACTION_KILL_ACTIVITY);
+            i.setAction(DotcaseConstants.ACTION_KILL_ACTIVITY);
             mContext.sendBroadcast(i);
         } catch (Exception ex) {}
     }

@@ -21,6 +21,7 @@
 package org.cyanogenmod.dotcase;
 
 import android.app.Activity;
+import android.app.INotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.service.notification.StatusBarNotification;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,21 +44,17 @@ import java.io.FileReader;
 
 public class Dotcase extends Activity
 {
-    private static final String TAG = "Dotcase";
     private static final String COVER_NODE = "/sys/android_touch/cover";
     private final IntentFilter filter = new IntentFilter();
     private GestureDetector mDetector;
     private PowerManager manager;
-    private Context mContext;
+    private static Context mContext;
     private volatile boolean running = true;
 
-    public static final String ACTION_DONE_RINGING = "org.cyanogenmod.dotcase.DONE_RINGING";
-    public static final String ACTION_KILL_ACTIVITY = "org.cyanogenmod.dotcase.KILL_ACTIVITY";
-    public static final String ACTION_PHONE_RINGING = "org.cyanogenmod.dotcase.PHONE_RINGING";
-    public static final String ACTION_REDRAW = "org.cyanogenmod.dotcase.REDRAW";
-
-    public static final String NOTIFICATION = "org.cyanogenmod.dotcase.notification.START";
-    public static final String NOTIFICATION_CANCEL = "org.cyanogenmod.dotcase.notification.CANCEL";
+    public static boolean gmail = false;
+    public static boolean hangouts = false;
+    public static boolean twitter = false;
+    public static boolean missed_call = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -65,7 +63,7 @@ public class Dotcase extends Activity
 
         mContext = this;
 
-        filter.addAction(Dotcase.ACTION_KILL_ACTIVITY);
+        filter.addAction(DotcaseConstants.ACTION_KILL_ACTIVITY);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
 
         getWindow().addFlags(
@@ -127,10 +125,38 @@ public class Dotcase extends Activity
                         } catch (Exception ex) {}
 
                         Intent intent = new Intent();
-                        intent.setAction(Dotcase.ACTION_REDRAW);
+                        intent.setAction(DotcaseConstants.ACTION_REDRAW);
                         mContext.sendBroadcast(intent);
                     }
                     manager.goToSleep(SystemClock.uptimeMillis());
+                }
+            }
+        }
+    }
+
+    public static void checkNotifications() {
+        StatusBarNotification[] nots = null;
+        try {
+            INotificationManager mNoMan = INotificationManager.Stub.asInterface(
+                    ServiceManager.getService(Context.NOTIFICATION_SERVICE));
+            nots = mNoMan.getActiveNotifications(mContext.getPackageName());
+        } catch (Exception ex) {}
+        if (nots != null) {
+            Intent intent = new Intent();
+            gmail = false;
+            hangouts = false;
+            twitter = false;
+            missed_call = false;
+            for (StatusBarNotification not : nots) {
+                intent.setAction(DotcaseConstants.NOTIFICATION);
+                if (not.getPackageName().equals("com.google.android.gm") && !gmail) {
+                    gmail = true;
+                } else if (not.getPackageName().equals("com.google.android.talk") && !hangouts) {
+                    hangouts = true;
+                } else if (not.getPackageName().equals("com.twitter.android") && !twitter) {
+                    twitter = true;
+                } else if (not.getPackageName().equals("com.android.phone") && !missed_call) {
+                    missed_call = true;
                 }
             }
         }
@@ -176,7 +202,7 @@ public class Dotcase extends Activity
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Dotcase.ACTION_KILL_ACTIVITY)) {
+            if (intent.getAction().equals(DotcaseConstants.ACTION_KILL_ACTIVITY)) {
                 try {
                     context.getApplicationContext().unregisterReceiver(receiver);
                 } catch (Exception ex) {}

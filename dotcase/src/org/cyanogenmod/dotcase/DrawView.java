@@ -26,8 +26,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 
 import java.util.Arrays;
@@ -36,22 +34,16 @@ import java.util.Collections;
 
 public class DrawView extends View {
     // 1920x1080 = 48 x 27 dots @ 40 pixels per dot
-    private static final String TAG = "DotcaseDrawView";
     private final Context mContext;
-    private Paint paint = new Paint();
     private final IntentFilter filter = new IntentFilter();
     private static boolean ringing = false;
-    private static int ringCounter = 0;
-    private static boolean ringerSwitcher = false;
+    private static int ringCounter;
     private static String phoneNumber;
-    private static boolean gmail = false;
-    private static boolean hangouts = false;
-    private static boolean twitter = false;
-    private static boolean missed_call = false;
     private int heartbeat = 0;
 
     public DrawView(Context context) {
         super(context);
+        Paint paint = new Paint();
         mContext = context;
         paint.setAntiAlias(true);
     }
@@ -60,8 +52,9 @@ public class DrawView extends View {
     public void onDraw(Canvas canvas) {
         if (!ringing) {
             drawTime(canvas);
+            Dotcase.checkNotifications();
 
-            if (gmail || hangouts || missed_call || twitter) {
+            if (Dotcase.gmail || Dotcase.hangouts || Dotcase.missed_call || Dotcase.twitter) {
                 if (heartbeat < 3) {
                     drawNotifications(canvas);
                 } else {
@@ -80,11 +73,11 @@ public class DrawView extends View {
             drawRinger(canvas);
         }
 
-        filter.addAction(Dotcase.ACTION_DONE_RINGING);
-        filter.addAction(Dotcase.ACTION_PHONE_RINGING);
-        filter.addAction(Dotcase.ACTION_REDRAW);
-        filter.addAction(Dotcase.NOTIFICATION);
-        filter.addAction(Dotcase.NOTIFICATION_CANCEL);
+        filter.addAction(DotcaseConstants.ACTION_DONE_RINGING);
+        filter.addAction(DotcaseConstants.ACTION_PHONE_RINGING);
+        filter.addAction(DotcaseConstants.ACTION_REDRAW);
+        filter.addAction(DotcaseConstants.NOTIFICATION);
+        filter.addAction(DotcaseConstants.NOTIFICATION_CANCEL);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
@@ -93,144 +86,78 @@ public class DrawView extends View {
         int x = 1;
         int y = 30;
 
-        if (missed_call) {
-            drawMissedCall(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
+        if (Dotcase.missed_call) {
+            dotcaseDrawSprite(DotcaseConstants.missedCallSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
+                    canvas);
             count++;
         }
 
-        if (gmail) {
-            drawGmail(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
+        if (Dotcase.gmail) {
+            dotcaseDrawSprite(DotcaseConstants.gmailSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
+                    canvas);
             count++;
         }
 
-        if (hangouts) {
-            drawHangouts(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
+        if (Dotcase.hangouts) {
+            dotcaseDrawSprite(DotcaseConstants.hangoutsSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
+                    canvas);
             count++;
         }
 
-        if (twitter) {
-            drawTwitter(canvas, x + ((count % 3) * 9), y + ((int)(count / 3) * 9));
+        if (Dotcase.twitter) {
+            dotcaseDrawSprite(DotcaseConstants.twitterSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
+                    canvas);
         }
     }
 
     private void drawRinger(Canvas canvas) {
-        int light = 3;
-        int dark = 10;
+        int light;
+        int dark;
+        int handsetLength = DotcaseConstants.handsetSprite.length;
+        int handsetElementLength = DotcaseConstants.handsetSprite[0].length;
+        int ringerLength = DotcaseConstants.ringerSprite.length;
+        int ringerElementLength = DotcaseConstants.ringerSprite[0].length;
 
-        int[][] handsetSprite = {
-                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
-                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
-                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
-                                {0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0},
-                                {0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0}};
+        int[][] mHandsetSprite =
+                new int[handsetLength][handsetElementLength];
+        int[][] mRingerSprite =
+                new int[ringerLength][ringerElementLength];
 
-        int[][] ringerSprite = {
-                                {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0},
-                                {0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0},
-                                {0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0},
-                                {0, 1, 1, 1, 0, 0, 2, 0, 0, 1, 1, 1, 0},
-                                {1, 1, 1, 0, 0, 2, 2, 2, 0, 0, 1, 1, 1},
-                                {0, 1, 0, 0, 2, 2, 2, 2, 2, 0, 0, 1, 0},
-                                {0, 0, 0, 2, 2, 2, 0, 2, 2, 2, 0, 0, 0},
-                                {0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 2, 0, 0},
-                                {0, 2, 2, 2, 0, 0, 3, 0, 0, 2, 2, 2, 0},
-                                {2, 2, 2, 0, 0, 3, 3, 3, 0, 0, 2, 2, 2},
-                                {0, 2, 0, 0, 3, 3, 3, 3, 3, 0, 0, 2, 0},
-                                {0, 0, 0, 3, 3, 3, 0, 3, 3, 3, 0, 0, 0},
-                                {0, 0, 3, 3, 3, 0, 0, 0, 3, 3, 3, 0, 0},
-                                {0, 3, 3, 3, 0, 0, 0, 0, 0, 3, 3, 3, 0},
-                                {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},
-                                {0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0}};
-
-        if (ringerSwitcher) {
-            Collections.reverse(Arrays.asList(ringerSprite));
-            Collections.reverse(Arrays.asList(handsetSprite));
+        if (ringCounter /3 > 0) {
             light = 2;
             dark = 11;
-            for (int i = 0; i < handsetSprite.length; i++) {
-                for (int j = 0; j < handsetSprite[0].length; j++) {
-                    handsetSprite[i][j] = handsetSprite[i][j] > 0 ? light : 0;
+        } else {
+            light = 3;
+            dark = 10;
+        }
+
+        for (int i = 0; i < ringerLength; i++) {
+            for (int j = 0; j < ringerElementLength; j++) {
+                if (DotcaseConstants.ringerSprite[i][j] > 0) {
+                    mRingerSprite[i][j] =
+                            DotcaseConstants.ringerSprite[i][j] == 3 - (ringCounter % 3) ? light : dark;
                 }
             }
         }
 
-        for (int i = 0; i < ringerSprite.length; i++) {
-            for (int j = 0; j < ringerSprite[0].length; j++) {
-                if (ringerSprite[i][j] > 0) {
-                    ringerSprite[i][j] =
-                          ringerSprite[i][j] == 3 - ringCounter ? light : dark;
-                }
+        for (int i = 0; i < handsetLength; i++) {
+            for (int j = 0; j < handsetElementLength; j++) {
+                mHandsetSprite[i][j] = DotcaseConstants.handsetSprite[i][j] > 0 ? light : 0;
             }
         }
 
-        dotcaseDrawSprite(handsetSprite, 6, 21, canvas);
-        dotcaseDrawSprite(ringerSprite, 7, 28, canvas);
+        if (ringCounter / 3 > 0) {
+            Collections.reverse(Arrays.asList(mRingerSprite));
+            Collections.reverse(Arrays.asList(mHandsetSprite));
+        }
+
+        dotcaseDrawSprite(mHandsetSprite, 6, 21, canvas);
+        dotcaseDrawSprite(mRingerSprite, 7, 28, canvas);
 
         ringCounter++;
-        if (ringCounter > 2) {
-            ringerSwitcher = !ringerSwitcher;
+        if (ringCounter > 5) {
             ringCounter = 0;
         }
-
-        return;
-    }
-
-    private void drawHangouts(Canvas canvas, int x, int y) {
-        int[][] hangoutsSprite = {
-                                  {0, 0, 0, 0, 0, 0, 0},
-                                  {0, 3, 3, 3, 3, 3, 0},
-                                  {3, 3, 1, 3, 1, 3, 3},
-                                  {3, 3, 1, 3, 1, 3, 3},
-                                  {0, 3, 3, 3, 3, 3, 0},
-                                  {0, 0, 0, 3, 3, 0, 0},
-                                  {0, 0, 0, 3, 0, 0, 0},
-                                  {0, 0, 0, 0, 0, 0, 0},};
-
-        dotcaseDrawSprite(hangoutsSprite, x, y, canvas);
-    }
-
-    private void drawTwitter(Canvas canvas, int x, int y) {
-        int[][] twitterSprite = {
-                                 {9, 9, 9, 9, 9, 9, 9},
-                                 {9, 9, 1, 1, 9, 9, 9},
-                                 {9, 9, 1, 1, 1, 1, 9},
-                                 {9, 9, 1, 1, 1, 1, 9},
-                                 {9, 9, 1, 1, 9, 9, 9},
-                                 {9, 9, 1, 1, 1, 1, 9},
-                                 {9, 9, 9, 1, 1, 1, 9},
-                                 {9, 9, 9, 9, 9, 9, 9}};
-
-        dotcaseDrawSprite(twitterSprite, x, y, canvas);
-    }
-
-    private void drawMissedCall(Canvas canvas, int x, int y) {
-        int[][] missedCallSprite = {
-                                  {0, 0, 0, 0, 0, 0, 0},
-                                  {0, 1, 0, 0, 0, 1, 0},
-                                  {0, 0, 1, 0, 1, 0, 0},
-                                  {0, 0, 0, 1, 0, 0, 0},
-                                  {0, 7, 7, 7, 7, 7, 0},
-                                  {7, 7, 7, 7, 7, 7, 7},
-                                  {7, 7, 0, 0, 0, 7, 7},
-                                  {0, 0, 0, 0, 0, 0, 0},};
-
-        dotcaseDrawSprite(missedCallSprite, x, y, canvas);
-    }
-
-    private void drawGmail(Canvas canvas, int x, int y) {
-        int[][] gmailSprite = {
-                               {0, 0, 0, 0, 0, 0, 0},
-                               {2, 1, 1, 1, 1, 1, 2},
-                               {2, 2, 1, 1, 1, 2, 2},
-                               {2, 1, 2, 1, 2, 1, 2},
-                               {2, 1, 1, 2, 1, 1, 2},
-                               {2, 1, 1, 1, 1, 1, 2},
-                               {2, 1, 1, 1, 1, 1, 2},
-                               {0, 0, 0, 0, 0, 0, 0}};
-
-        dotcaseDrawSprite(gmailSprite, x, y, canvas);
     }
 
     private void drawBattery(Canvas canvas) {
@@ -272,25 +199,13 @@ public class DrawView extends View {
         }
 
         if (plugged > 0) {
-            int[][] lightningSprite = {
-                               {-1, -1, -1, -1,  0,  0, -1, -1},
-                               {-1, -1, -1,  0,  7,  0, -1, -1},
-                               {-1, -1,  0,  7,  7,  0, -1, -1},
-                               {-1,  0,  7,  7,  7,  0, -1, -1},
-                               { 0,  7,  7,  7,  7,  0,  0,  0},
-                               { 0,  0,  0,  7,  7,  7,  7,  0},
-                               {-1, -1,  0,  7,  7,  7,  0, -1},
-                               {-1, -1,  0,  7,  7,  0, -1, -1},
-                               {-1, -1,  0,  7,  0, -1, -1, -1},
-                               {-1, -1,  0,  0, -1, -1, -1, -1}};
-
-            dotcaseDrawSprite(lightningSprite, 10, 36, canvas);
+            dotcaseDrawSprite(DotcaseConstants.lightningSprite, 9, 36, canvas);
         }
     }
 
     private void drawTime(Canvas canvas) {
         int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String hours = "  ";
+        String hours;
         String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10) ?
                          "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)) :
                          Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
@@ -323,7 +238,7 @@ public class DrawView extends View {
         dotcaseDrawPixel(starter + 10, 12, 9, canvas);
 
         for (int i = 0; i < time.length(); i++) {
-            sprite = getSprite(time.charAt(i));
+            sprite = DotcaseConstants.getSprite(time.charAt(i));
 
             y = 5;
 
@@ -342,259 +257,23 @@ public class DrawView extends View {
         }
     }
 
-    public int[][] getSprite(char c) {
-        int[][] sprite;
-        switch (c) {
-            case '0': sprite = new int[][]
-                           {{-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1}};
-                break;
-            case '1': sprite = new int[][]
-                           {{-1, -1,  9, -1},
-                            {-1,  9,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1,  9,  9,  9}};
-                break;
-            case '2': sprite = new int[][]
-                           {{-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1,  9, -1},
-                            {-1, -1,  9, -1},
-                            {-1,  9, -1, -1},
-                            {-1,  9, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9,  9,  9,  9}};
-                break;
-            case '3': sprite = new int[][]
-                           {{-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1,  9,  9, -1},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1}};
-                break;
-            case '4': sprite = new int[][]
-                           {{ 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9,  9,  9,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9}};
-                break;
-            case '5': sprite = new int[][]
-                           {{ 9,  9,  9,  9},
-                            { 9, -1, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9,  9,  9, -1},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1}};
-                break;
-            case '6': sprite = new int[][]
-                           {{-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9, -1, -1, -1},
-                            { 9,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1}};
-                break;
-            case '7': sprite = new int[][]
-                           {{ 9,  9,  9,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9}};
-                break;
-            case '8': sprite = new int[][]
-                           {{-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1}};
-                break;
-            case '9': sprite = new int[][]
-                           {{-1,  9,  9, -1},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            {-1, -1, -1,  9},
-                            { 9, -1, -1,  9},
-                            {-1,  9,  9, -1}};
-                break;
-            default: sprite = new int[][]
-                           {{-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1},
-                            {-1, -1, -1, -1}};
-                break;
-        }
-
-        return sprite;
-    }
-
-    public int[][] getSmallSprite(char c) {
-        int[][] sprite;
-        switch (c) {
-            case '0': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            { 9, -1,  9},
-                            { 9, -1,  9},
-                            { 9, -1,  9},
-                            { 9,  9,  9}};
-                break;
-            case '1': sprite = new int[][]
-                           {{ 9,  9, -1},
-                            {-1,  9, -1},
-                            {-1,  9, -1},
-                            {-1,  9, -1},
-                            { 9,  9,  9}};
-                break;
-            case '2': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            {-1, -1,  9},
-                            { 9,  9,  9},
-                            { 9, -1, -1},
-                            { 9,  9,  9}};
-                break;
-            case '3': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            {-1, -1,  9},
-                            { 9,  9,  9},
-                            {-1, -1,  9},
-                            { 9,  9,  9}};
-                break;
-            case '4': sprite = new int[][]
-                           {{ 9, -1,  9},
-                            { 9, -1,  9},
-                            { 9,  9,  9},
-                            {-1, -1,  9},
-                            {-1, -1,  9}};
-                break;
-            case '5': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            { 9, -1, -1},
-                            { 9,  9,  9},
-                            {-1, -1,  9},
-                            { 9,  9,  9}};
-                break;
-            case '6': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            { 9, -1, -1},
-                            { 9,  9,  9},
-                            { 9, -1,  9},
-                            { 9,  9,  9}};
-                break;
-            case '7': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            {-1, -1,  9},
-                            {-1, -1,  9},
-                            {-1, -1,  9},
-                            {-1, -1,  9}};
-                break;
-            case '8': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            { 9, -1,  9},
-                            { 9,  9,  9},
-                            { 9, -1,  9},
-                            { 9,  9,  9}};
-                break;
-            case '9': sprite = new int[][]
-                           {{ 9,  9,  9},
-                            { 9, -1,  9},
-                            { 9,  9,  9},
-                            {-1, -1,  9},
-                            { 9,  9,  9}};
-                break;
-            default: sprite = new int[][]
-                           {{-1, -1, -1},
-                            {-1, -1, -1},
-                            {-1, -1, -1},
-                            {-1, -1, -1},
-                            {-1, -1, -1}};
-                break;
-        }
-
-        return sprite;
-    }
-
     private void dotcaseDrawPixel(int x, int y, Paint paint, Canvas canvas) {
         float dotratio = 40;
-        canvas.drawRect((float)(x * dotratio + 5),
-                        (float)(y * dotratio + 5),
-                        (float)((x + 1) * dotratio -5),
-                        (float)((y + 1) * dotratio -5),
+        canvas.drawRect((x * dotratio + 5),
+                        (y * dotratio + 5),
+                        ((x + 1) * dotratio -5),
+                        ((y + 1) * dotratio -5),
                         paint);
     }
 
     private void dotcaseDrawPixel(int x, int y, int color, Canvas canvas) {
-        dotcaseDrawPixel(x, y, getPaintFromNumber(color), canvas);
+        dotcaseDrawPixel(x, y, DotcaseConstants.getPaintFromNumber(color), canvas);
     }
 
     private void dotcaseDrawRect(int left, int top, int right, int bottom, int color, Canvas canvas) {
         for (int x=left; x < right; x++) {
             for (int y=top; y < bottom; y++) {
-                dotcaseDrawPixel(x, y, getPaintFromNumber(color), canvas);
+                dotcaseDrawPixel(x, y, DotcaseConstants.getPaintFromNumber(color), canvas);
             }
         }
     }
@@ -602,89 +281,22 @@ public class DrawView extends View {
     private void dotcaseDrawSprite(int[][] sprite, int x, int y, Canvas canvas) {
         for (int i=0; i < sprite.length; i++) {
             for (int j=0; j < sprite[0].length; j++) {
-                dotcaseDrawPixel(x + j, y + i, getPaintFromNumber(sprite[i][j]), canvas);
+                dotcaseDrawPixel(x + j, y + i, DotcaseConstants.getPaintFromNumber(sprite[i][j]), canvas);
             }
         }
-    }
-
-    private Paint getPaintFromNumber(int color) {
-        switch (color) {
-            case -1: // transparent
-                     paint.setARGB(0, 0, 0, 0);
-                     break;
-            case 0:  // black
-                     paint.setARGB(255, 0, 0, 0);
-                     break;
-            case 1:  // white
-                     paint.setARGB(255, 255, 255, 255);
-                     break;
-            case 2:  // red
-                     paint.setARGB(255, 255, 0, 0);
-                     break;
-            case 3:  // green
-                     paint.setARGB(255, 0, 255, 0);
-                     break;
-            case 4:  // blue
-                     paint.setARGB(255, 0, 0, 255);
-                     break;
-            case 5:  // orange
-                     paint.setARGB(255, 255, 165, 0);
-                     break;
-            case 6:  // purple
-                     paint.setARGB(255, 160, 32, 240);
-                     break;
-            case 7:  // yellow
-                     paint.setARGB(255, 255, 255, 0);
-                     break;
-            case 8:  // grey
-                     paint.setARGB(255, 69, 69, 69);
-                     break;
-            case 9:  // cyan
-                     paint.setARGB(255, 51, 181, 229);
-                     break;
-            case 10: // dark green
-                     paint.setARGB(255, 0, 128, 0);
-                     break;
-            case 11: // dark red
-                     paint.setARGB(255, 128, 0, 0);
-                     break;
-            default: // black
-                     paint.setARGB(255, 0, 0, 0);
-                     break;
-        }
-
-        return paint;
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String name = "";
-
-            if (intent.getAction().equals(Dotcase.ACTION_PHONE_RINGING)) {
-                Log.e(TAG, "Phone Number: " + intent.getExtras().getString("number"));
+            if (intent.getAction().equals(DotcaseConstants.ACTION_PHONE_RINGING)) {
                 phoneNumber = intent.getExtras().getString("number");
                 ringing = true;
                 ringCounter = 0;
-                ringerSwitcher = false;
-            } else if (intent.getAction().equals(Dotcase.ACTION_DONE_RINGING)) {
+            } else if (intent.getAction().equals(DotcaseConstants.ACTION_DONE_RINGING)) {
                 ringing = false;
-            } else if (intent.getAction().equals(Dotcase.ACTION_REDRAW)) {
+            } else if (intent.getAction().equals(DotcaseConstants.ACTION_REDRAW)) {
                 postInvalidate();
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION)) {
-                name = intent.getExtras().getString("name");
-                if (name.equals("gmail")) { gmail = true;
-                } else if (name.equals("hangouts")) { hangouts = true;
-                } else if (name.equals("twitter")) { twitter = true;
-                } else if (name.equals("missed_call")) { missed_call = true;
-                }
-            } else if (intent.getAction().equals(Dotcase.NOTIFICATION_CANCEL)) {
-                name = intent.getExtras().getString("name");
-                if (name.equals("gmail")) { gmail = false;
-                } else if (name.equals("hangouts")) { hangouts = false;
-                } else if (name.equals("twitter")) { twitter = false;
-                } else if (name.equals("missed_call")) { missed_call = false;
-                }
             }
         }
     };
@@ -694,7 +306,7 @@ public class DrawView extends View {
         int x = 0, y = 5;
         if (ringing) {
             for (int i = 3; i < phoneNumber.length(); i++) {
-                sprite = getSmallSprite(phoneNumber.charAt(i));
+                sprite = DotcaseConstants.getSmallSprite(phoneNumber.charAt(i));
                 dotcaseDrawSprite(sprite, x + (i - 3) * 4, y, canvas);
             }
         }
