@@ -36,10 +36,9 @@ public class DrawView extends View {
     // 1920x1080 = 48 x 27 dots @ 40 pixels per dot
     private final Context mContext;
     private final IntentFilter filter = new IntentFilter();
-    private static boolean ringing = false;
-    private static int ringCounter;
-    private static String phoneNumber;
     private int heartbeat = 0;
+
+    public static int ringCounter;
 
     public DrawView(Context context) {
         super(context);
@@ -50,7 +49,7 @@ public class DrawView extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (!ringing) {
+        if (!Dotcase.ringing) {
             drawTime(canvas);
             Dotcase.checkNotifications();
 
@@ -73,11 +72,7 @@ public class DrawView extends View {
             drawRinger(canvas);
         }
 
-        filter.addAction(DotcaseConstants.ACTION_DONE_RINGING);
-        filter.addAction(DotcaseConstants.ACTION_PHONE_RINGING);
         filter.addAction(DotcaseConstants.ACTION_REDRAW);
-        filter.addAction(DotcaseConstants.NOTIFICATION);
-        filter.addAction(DotcaseConstants.NOTIFICATION_CANCEL);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
@@ -289,13 +284,7 @@ public class DrawView extends View {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(DotcaseConstants.ACTION_PHONE_RINGING)) {
-                phoneNumber = intent.getExtras().getString("number");
-                ringing = true;
-                ringCounter = 0;
-            } else if (intent.getAction().equals(DotcaseConstants.ACTION_DONE_RINGING)) {
-                ringing = false;
-            } else if (intent.getAction().equals(DotcaseConstants.ACTION_REDRAW)) {
+            if (intent.getAction().equals(DotcaseConstants.ACTION_REDRAW)) {
                 postInvalidate();
             }
         }
@@ -304,9 +293,9 @@ public class DrawView extends View {
     private void drawNumber(Canvas canvas) {
         int[][] sprite;
         int x = 0, y = 5;
-        if (ringing) {
-            for (int i = 3; i < phoneNumber.length(); i++) {
-                sprite = DotcaseConstants.getSmallSprite(phoneNumber.charAt(i));
+        if (Dotcase.ringing) {
+            for (int i = 3; i < Dotcase.phoneNumber.length(); i++) {
+                sprite = DotcaseConstants.getSmallSprite(Dotcase.phoneNumber.charAt(i));
                 dotcaseDrawSprite(sprite, x + (i - 3) * 4, y, canvas);
             }
         }

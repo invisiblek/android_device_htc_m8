@@ -103,12 +103,12 @@ class CoverObserver extends UEventObserver {
             if (intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 if (state.equals("RINGING")) {
-                    intent.setAction(DotcaseConstants.ACTION_PHONE_RINGING);
-                    intent.putExtra("number", intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
-                    mContext.sendBroadcast(intent);
+                    Dotcase.ringCounter = 0;
+                    Dotcase.phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+                    Dotcase.ringing = true;
                 } else {
-                    intent.setAction(DotcaseConstants.ACTION_DONE_RINGING);
-                    mContext.sendBroadcast(intent);
+                    Dotcase.phoneNumber = "";
+                    Dotcase.ringing = false;
                 }
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 crankUpBrightness();

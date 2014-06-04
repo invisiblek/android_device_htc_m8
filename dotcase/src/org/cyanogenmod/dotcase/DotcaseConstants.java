@@ -23,12 +23,8 @@ package org.cyanogenmod.dotcase;
 import android.graphics.Paint;
 
 public class DotcaseConstants {
-    static String ACTION_DONE_RINGING = "org.cyanogenmod.dotcase.DONE_RINGING";
     static String ACTION_KILL_ACTIVITY = "org.cyanogenmod.dotcase.KILL_ACTIVITY";
-    static String ACTION_PHONE_RINGING = "org.cyanogenmod.dotcase.PHONE_RINGING";
     static String ACTION_REDRAW = "org.cyanogenmod.dotcase.REDRAW";
-    static String NOTIFICATION = "org.cyanogenmod.dotcase.notification.START";
-    static String NOTIFICATION_CANCEL = "org.cyanogenmod.dotcase.notification.CANCEL";
 
     static int[][] handsetSprite = {
             {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3},

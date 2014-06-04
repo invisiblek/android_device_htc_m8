@@ -51,6 +51,10 @@ public class Dotcase extends Activity
     private static Context mContext;
     private volatile boolean running = true;
 
+    public static boolean ringing = false;
+    public static int ringCounter = 0;
+    public static String phoneNumber = "";
+
     public static boolean gmail = false;
     public static boolean hangouts = false;
     public static boolean twitter = false;
@@ -142,13 +146,11 @@ public class Dotcase extends Activity
             nots = mNoMan.getActiveNotifications(mContext.getPackageName());
         } catch (Exception ex) {}
         if (nots != null) {
-            Intent intent = new Intent();
             gmail = false;
             hangouts = false;
             twitter = false;
             missed_call = false;
             for (StatusBarNotification not : nots) {
-                intent.setAction(DotcaseConstants.NOTIFICATION);
                 if (not.getPackageName().equals("com.google.android.gm") && !gmail) {
                     gmail = true;
                 } else if (not.getPackageName().equals("com.google.android.talk") && !hangouts) {
