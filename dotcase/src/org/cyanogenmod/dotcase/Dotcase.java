@@ -64,6 +64,8 @@ public class Dotcase extends Activity
     public static boolean mms = false;
     public static boolean voicemail = false;
 
+    public static boolean alarm_clock = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -72,6 +74,7 @@ public class Dotcase extends Activity
         mContext = this;
 
         filter.addAction(DotcaseConstants.ACTION_KILL_ACTIVITY);
+        filter.addAction("com.android.deskclock.ALARM_ALERT");
         mContext.getApplicationContext().registerReceiver(receiver, filter);
 
         getWindow().addFlags(
@@ -202,15 +205,29 @@ public class Dotcase extends Activity
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (Math.abs(distanceY) > 60) {
-                try {
-                    ITelephony telephonyService = ITelephony.Stub.asInterface(
-                                        ServiceManager.checkService(Context.TELEPHONY_SERVICE));
-                    if (distanceY < 60) {
-                        telephonyService.endCall();
-                    } else if (distanceY > 60) {
-                        telephonyService.answerRingingCall();
+                if (ringing) {
+                    try {
+                        ITelephony telephonyService = ITelephony.Stub.asInterface(
+                                ServiceManager.checkService(Context.TELEPHONY_SERVICE));
+                        if (distanceY < 60) {
+                            telephonyService.endCall();
+                        } else if (distanceY > 60) {
+                            telephonyService.answerRingingCall();
+                        }
+                    } catch (Exception ex) {
                     }
-                } catch (Exception ex) {}
+                } else if (alarm_clock) {
+                    Intent i = new Intent();
+                    if (distanceY < 60) {
+                        i.setAction("com.android.deskclock.ALARM_DISMISS");
+                        mContext.sendBroadcast(i);
+                        ringing = false;
+                    } else if (distanceY > 60) {
+                        i.setAction("com.android.deskclock.ALARM_SNOOZE");
+                        mContext.sendBroadcast(i);
+                        ringing = false;
+                    }
+                }
             }
             return true;
         }
@@ -232,6 +249,8 @@ public class Dotcase extends Activity
                 running = false;
                 finish();
                 overridePendingTransition(0, 0);
+            } else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")) {
+                alarm_clock = true;
             }
         }
     };

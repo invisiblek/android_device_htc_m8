@@ -49,7 +49,9 @@ public class DrawView extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (!Dotcase.ringing) {
+        if (Dotcase.alarm_clock) {
+            drawAlarm(canvas);
+        } else if (!Dotcase.ringing) {
             drawTime(canvas);
             Dotcase.checkNotifications();
             if (Dotcase.gmail || Dotcase.hangouts || Dotcase.mms || Dotcase.missed_call
@@ -74,6 +76,97 @@ public class DrawView extends View {
 
         filter.addAction(DotcaseConstants.ACTION_REDRAW);
         mContext.getApplicationContext().registerReceiver(receiver, filter);
+    }
+
+    private void drawAlarm(Canvas canvas) {
+        int light = 7;
+        int dark = 12;
+        int wordStarter = 2;
+        int clockLength = DotcaseConstants.clockSprite.length;
+        int clockElementLength = DotcaseConstants.clockSprite[0].length;
+        int ringerLength = DotcaseConstants.ringerSprite.length;
+        int ringerElementLength = DotcaseConstants.ringerSprite[0].length;
+        int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        boolean am = true;
+        int timeX;
+
+        if (hour_of_day > 11) {
+            hour_of_day = hour_of_day - 12;
+            am = false;
+        }
+
+        if (hour_of_day == 0) {
+            hour_of_day = hour_of_day + 12;
+        }
+
+        String hours = hour_of_day < 10 ? " " + Integer.toString(hour_of_day) : Integer.toString(hour_of_day);
+        String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10)
+                ? "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE))
+                : Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
+
+        String time = hours + minutes;
+
+        int[][] mClockSprite =
+                new int[clockLength][clockElementLength];
+        int[][] mRingerSprite =
+                new int[ringerLength][ringerElementLength];
+        int[][] mWordArray = DotcaseConstants.snoozeArray;
+
+        for (int i = 0; i < ringerLength; i++) {
+            for (int j = 0; j < ringerElementLength; j++) {
+                if (DotcaseConstants.ringerSprite[i][j] > 0) {
+                    mRingerSprite[i][j] =
+                            DotcaseConstants.ringerSprite[i][j] == 3 - (ringCounter % 3) ? light : dark;
+                }
+            }
+        }
+
+        for (int i = 0; i < clockLength; i++) {
+            for (int j = 0; j < clockElementLength; j++) {
+                mClockSprite[i][j] = DotcaseConstants.clockSprite[i][j] > 0 ? light : 0;
+            }
+        }
+
+        if (ringCounter / 6 > 0) {
+            mWordArray = DotcaseConstants.sleepArray;
+            wordStarter = wordStarter + 2;
+            Collections.reverse(Arrays.asList(mRingerSprite));
+        }
+
+        dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 7, 1, canvas);
+
+        if (am) {
+            dotcaseDrawSprite(DotcaseConstants.amSprite, 18, 0, canvas);
+        } else {
+            dotcaseDrawSprite(DotcaseConstants.pmSprite, 18, 0, canvas);
+        }
+
+        if (time.length() == 2) {
+            time = " " + time;
+        }
+
+        for (int i = 0; i < time.length(); i++) {
+            if (i == 0) {
+                timeX = 0;
+            } else if (i == 1) {
+                timeX =  4;
+            } else if (i == 2) {
+                timeX = 9;
+            } else {
+                timeX = 13;
+            }
+
+            dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.charAt(i)), timeX, 0, canvas);
+        }
+
+        dotcaseDrawSprite(mClockSprite, 7, 7, canvas);
+        dotcaseDrawSprite(mWordArray, wordStarter, 21, canvas);
+        dotcaseDrawSprite(mRingerSprite, 7, 28, canvas);
+
+        ringCounter++;
+        if (ringCounter > 11) {
+            ringCounter = 0;
+        }
     }
 
     private void drawNotifications(Canvas canvas) {
