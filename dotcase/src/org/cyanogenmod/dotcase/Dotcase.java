@@ -74,7 +74,6 @@ public class Dotcase extends Activity
         mContext = this;
 
         filter.addAction(DotcaseConstants.ACTION_KILL_ACTIVITY);
-        filter.addAction("com.android.deskclock.ALARM_ALERT");
         mContext.getApplicationContext().registerReceiver(receiver, filter);
 
         getWindow().addFlags(
@@ -249,8 +248,6 @@ public class Dotcase extends Activity
                 running = false;
                 finish();
                 overridePendingTransition(0, 0);
-            } else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")) {
-                alarm_clock = true;
             }
         }
     };

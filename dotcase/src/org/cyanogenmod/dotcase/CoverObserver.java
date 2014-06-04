@@ -55,6 +55,7 @@ class CoverObserver extends UEventObserver {
     public synchronized final void init() {
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        filter.addAction("com.android.deskclock.ALARM_ALERT");
 
         manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         startObserving(COVER_UEVENT_MATCH);
@@ -119,6 +120,15 @@ class CoverObserver extends UEventObserver {
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);
+            } else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")) {
+                Dotcase.alarm_clock = true;
+                crankUpBrightness();
+                Dotcase.checkNotifications();
+                Dotcase.reset_timer = true;
+                intent.setAction(DotcaseConstants.ACTION_REDRAW);
+                mContext.sendBroadcast(intent);
+                i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
         }
     };
