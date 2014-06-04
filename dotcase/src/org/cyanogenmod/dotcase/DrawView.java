@@ -211,8 +211,16 @@ public class DrawView extends View {
 
     private void drawTime(Canvas canvas) {
         int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        hour_of_day = hour_of_day > 12 ? hour_of_day - 12 : hour_of_day;
-        hour_of_day = hour_of_day == 0 ? 12 : hour_of_day;
+        boolean am = true;
+
+        if (hour_of_day > 11) {
+            hour_of_day = hour_of_day - 12;
+            am = false;
+        }
+
+        if (hour_of_day == 0) {
+            hour_of_day = hour_of_day + 12;
+        }
 
         String hours = hour_of_day < 10 ? " " + Integer.toString(hour_of_day) : Integer.toString(hour_of_day);
         String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10)
@@ -229,6 +237,12 @@ public class DrawView extends View {
         }
 
         dotcaseDrawSprite(DotcaseConstants.timeColon, starter + 10, y + 4, canvas);
+
+        if (am) {
+            dotcaseDrawSprite(DotcaseConstants.amSprite, 3, 18, canvas);
+        } else {
+            dotcaseDrawSprite(DotcaseConstants.pmSprite, 3, 18, canvas);
+        }
 
         for (int i = 0; i < time.length(); i++) {
             if (i == 0) {
