@@ -59,6 +59,7 @@ public class Dotcase extends Activity
     public static boolean hangouts = false;
     public static boolean twitter = false;
     public static boolean missed_call = false;
+    public static boolean mms = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -144,6 +145,7 @@ public class Dotcase extends Activity
         hangouts = false;
         twitter = false;
         missed_call = false;
+        mms = false;
         try {
             INotificationManager mNoMan = INotificationManager.Stub.asInterface(
                     ServiceManager.getService(Context.NOTIFICATION_SERVICE));
@@ -159,6 +161,8 @@ public class Dotcase extends Activity
                     twitter = true;
                 } else if (not.getPackageName().equals("com.android.phone") && !missed_call) {
                     missed_call = true;
+                } else if (not.getPackageName().equals("com.android.mms") && !mms) {
+                    mms = true;
                 }
             }
         }
