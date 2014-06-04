@@ -113,6 +113,7 @@ class CoverObserver extends UEventObserver {
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 crankUpBrightness();
                 Dotcase.checkNotifications();
+                Dotcase.reset_timer = true;
                 intent.setAction(DotcaseConstants.ACTION_REDRAW);
                 mContext.sendBroadcast(intent);
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");

@@ -49,7 +49,9 @@ public class Dotcase extends Activity
     private GestureDetector mDetector;
     private PowerManager manager;
     private static Context mContext;
-    private volatile boolean running = true;
+    private static boolean running = true;
+
+    public static boolean reset_timer = false;
 
     public static boolean ringing = false;
     public static int ringCounter = 0;
@@ -109,6 +111,11 @@ public class Dotcase extends Activity
                     }
 
                     for (int i = 0; i <= timeout; i++) {
+                        if (reset_timer) {
+                            i = 0;
+                            reset_timer = false;
+                        }
+
                         if (!running) {
                             return;
                         }
@@ -201,6 +208,12 @@ public class Dotcase extends Activity
                     }
                 } catch (Exception ex) {}
             }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed (MotionEvent e) {
+            reset_timer = true;
             return true;
         }
     }
