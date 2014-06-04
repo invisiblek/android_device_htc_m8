@@ -220,11 +220,11 @@ public class Dotcase extends Activity
                     if (distanceY < 60) {
                         i.setAction("com.android.deskclock.ALARM_DISMISS");
                         mContext.sendBroadcast(i);
-                        ringing = false;
+                        alarm_clock = false;
                     } else if (distanceY > 60) {
                         i.setAction("com.android.deskclock.ALARM_SNOOZE");
                         mContext.sendBroadcast(i);
-                        ringing = false;
+                        alarm_clock = false;
                     }
                 }
             }

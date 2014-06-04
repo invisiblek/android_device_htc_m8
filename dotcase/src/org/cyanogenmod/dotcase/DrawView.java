@@ -133,7 +133,7 @@ public class DrawView extends View {
             Collections.reverse(Arrays.asList(mRingerSprite));
         }
 
-        dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 7, 1, canvas);
+        dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 8, 1, canvas);
 
         if (am) {
             dotcaseDrawSprite(DotcaseConstants.amSprite, 18, 0, canvas);
@@ -151,9 +151,9 @@ public class DrawView extends View {
             } else if (i == 1) {
                 timeX =  4;
             } else if (i == 2) {
-                timeX = 9;
+                timeX = 10;
             } else {
-                timeX = 13;
+                timeX = 14;
             }
 
             dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.charAt(i)), timeX, 0, canvas);
