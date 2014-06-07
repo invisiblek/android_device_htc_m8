@@ -78,6 +78,27 @@ public class DrawView extends View {
         mContext.getApplicationContext().registerReceiver(receiver, filter);
     }
 
+    private timeObject getTimeString() {
+        timeObject timeObj = new timeObject();
+        timeObj.hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        timeObj.min = (Calendar.getInstance().get(Calendar.MINUTE));
+
+        if (timeObj.hour > 11) {
+            timeObj.hour = timeObj.hour - 12;
+            timeObj.am = false;
+        } else {
+            timeObj.am = true;
+        }
+
+        if (timeObj.hour == 0) {
+            timeObj.hour = timeObj.hour + 12;
+        }
+
+        timeObj.timeString = (timeObj.hour < 10 ? " " + Integer.toString(timeObj.hour) : Integer.toString(timeObj.hour))
+                           + ((timeObj.min < 10) ? "0" + Integer.toString(timeObj.min) : Integer.toString(timeObj.min));
+        return timeObj;
+    }
+
     private void drawAlarm(Canvas canvas) {
         int light = 7;
         int dark = 12;
@@ -85,25 +106,7 @@ public class DrawView extends View {
         int clockElementLength = DotcaseConstants.clockSprite[0].length;
         int ringerLength = DotcaseConstants.ringerSprite.length;
         int ringerElementLength = DotcaseConstants.ringerSprite[0].length;
-        int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        boolean am = true;
-        int timeX;
-
-        if (hour_of_day > 11) {
-            hour_of_day = hour_of_day - 12;
-            am = false;
-        }
-
-        if (hour_of_day == 0) {
-            hour_of_day = hour_of_day + 12;
-        }
-
-        String hours = hour_of_day < 10 ? " " + Integer.toString(hour_of_day) : Integer.toString(hour_of_day);
-        String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10)
-                ? "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE))
-                : Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
-
-        String time = hours + minutes;
+        timeObject time = getTimeString();
 
         int[][] mClockSprite =
                 new int[clockLength][clockElementLength];
@@ -133,32 +136,25 @@ public class DrawView extends View {
             mWordArray = DotcaseConstants.snoozeArray;
         }
 
-        dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 8, 1, canvas);
-
-        if (am) {
+        if (time.am) {
             dotcaseDrawSprite(DotcaseConstants.amSprite, 18, 0, canvas);
         } else {
             dotcaseDrawSprite(DotcaseConstants.pmSprite, 18, 0, canvas);
         }
 
-        if (time.length() == 2) {
-            time = " " + time;
+        if (time.hour < 10) {
+            time.timeString = " " + time.timeString;
         }
 
-        for (int i = 0; i < time.length(); i++) {
-            if (i == 0) {
-                timeX = 0;
-            } else if (i == 1) {
-                timeX =  4;
-            } else if (i == 2) {
-                timeX = 10;
+        for (int i = 0; i < time.timeString.length(); i++) {
+            if (i < 2) {
+                dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(i)), i * 4, 0, canvas);
             } else {
-                timeX = 14;
+                dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(i)), i * 4 + 3, 0, canvas);
             }
-
-            dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.charAt(i)), timeX, 0, canvas);
         }
 
+        dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 8, 1, canvas);
         dotcaseDrawSprite(mClockSprite, 7, 7, canvas);
         dotcaseDrawSprite(mWordArray, 2, 21, canvas);
         dotcaseDrawSprite(mRingerSprite, 7, 28, canvas);
@@ -303,41 +299,24 @@ public class DrawView extends View {
     }
 
     private void drawTime(Canvas canvas) {
-        int hour_of_day = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        boolean am = true;
-
-        if (hour_of_day > 11) {
-            hour_of_day = hour_of_day - 12;
-            am = false;
-        }
-
-        if (hour_of_day == 0) {
-            hour_of_day = hour_of_day + 12;
-        }
-
-        String hours = hour_of_day < 10 ? " " + Integer.toString(hour_of_day) : Integer.toString(hour_of_day);
-        String minutes = ((Calendar.getInstance().get(Calendar.MINUTE) < 10)
-                         ? "0" + Integer.toString(Calendar.getInstance().get(Calendar.MINUTE))
-                         : Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)));
-
-        String time = hours + minutes;
+        timeObject time = getTimeString();
 
         int x, y = 5;
         int starter = 0;
 
-        if (hour_of_day > 9) {
+        if (time.hour > 9) {
             starter = 3;
         }
 
         dotcaseDrawSprite(DotcaseConstants.timeColon, starter + 10, y + 4, canvas);
 
-        if (am) {
+        if (time.am) {
             dotcaseDrawSprite(DotcaseConstants.amSprite, 3, 18, canvas);
         } else {
             dotcaseDrawSprite(DotcaseConstants.pmSprite, 3, 18, canvas);
         }
 
-        for (int i = 0; i < time.length(); i++) {
+        for (int i = 0; i < time.timeString.length(); i++) {
             if (i == 0) {
                 x = starter;
             } else if (i == 1) {
@@ -348,7 +327,7 @@ public class DrawView extends View {
                 x = starter + 17;
             }
 
-            dotcaseDrawSprite(DotcaseConstants.getSprite(time.charAt(i)), x, y, canvas);
+            dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(i)), x, y, canvas);
 
         }
     }
@@ -396,5 +375,12 @@ public class DrawView extends View {
                 dotcaseDrawSprite(sprite, x + (i - 3) * 4, y, canvas);
             }
         }
+    }
+
+    private class timeObject {
+        String timeString;
+        int hour;
+        int min;
+        boolean am;
     }
 }
