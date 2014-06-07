@@ -206,6 +206,7 @@ public class Dotcase extends Activity
             if (Math.abs(distanceY) > 60) {
                 if (ringing) {
                     try {
+                        CoverObserver.topActivityKeeper = false;
                         ITelephony telephonyService = ITelephony.Stub.asInterface(
                                 ServiceManager.checkService(Context.TELEPHONY_SERVICE));
                         if (distanceY < 60) {
@@ -219,10 +220,12 @@ public class Dotcase extends Activity
                     Intent i = new Intent();
                     if (distanceY < 60) {
                         i.setAction("com.android.deskclock.ALARM_DISMISS");
+                        CoverObserver.topActivityKeeper = false;
                         mContext.sendBroadcast(i);
                         alarm_clock = false;
                     } else if (distanceY > 60) {
                         i.setAction("com.android.deskclock.ALARM_SNOOZE");
+                        CoverObserver.topActivityKeeper = false;
                         mContext.sendBroadcast(i);
                         alarm_clock = false;
                     }

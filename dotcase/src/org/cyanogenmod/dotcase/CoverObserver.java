@@ -47,6 +47,8 @@ class CoverObserver extends UEventObserver {
     private int oldBrightnessMode = -1;
     private boolean needStoreOldBrightness = true;
 
+    public static boolean topActivityKeeper = false;
+
     public CoverObserver(Context context) {
         mContext = context;
         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
@@ -68,6 +70,7 @@ class CoverObserver extends UEventObserver {
         try {
             int state = Integer.parseInt(event.get("SWITCH_STATE"));
             boolean screenOn = manager.isScreenOn();
+            topActivityKeeper = false;
 
             if (state == 1) {
                 if (screenOn) {
@@ -106,15 +109,22 @@ class CoverObserver extends UEventObserver {
             if (intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 if (state.equals("RINGING")) {
-                    Dotcase.ringCounter = 0;
-                    Dotcase.phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                     Dotcase.ringing = true;
                     Dotcase.reset_timer = true;
+                    topActivityKeeper = true;
+                    Dotcase.ringCounter = 0;
+                    Dotcase.phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                     new Thread(new ensureTopActivity()).start();
                 } else {
-                    Dotcase.phoneNumber = "";
+                    topActivityKeeper = false;
                     Dotcase.ringing = false;
+                    Dotcase.phoneNumber = "";
                 }
+            } else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")) {
+                Dotcase.alarm_clock = true;
+                Dotcase.reset_timer = true;
+                topActivityKeeper = true;
+                new Thread(new ensureTopActivity()).start();
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 crankUpBrightness();
                 Dotcase.checkNotifications();
@@ -124,16 +134,6 @@ class CoverObserver extends UEventObserver {
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);
-            } else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")) {
-                Dotcase.alarm_clock = true;
-                crankUpBrightness();
-                Dotcase.checkNotifications();
-                Dotcase.reset_timer = true;
-                intent.setAction(DotcaseConstants.ACTION_REDRAW);
-                mContext.sendBroadcast(intent);
-                i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                new Thread(new ensureTopActivity()).start();
             }
         }
     };
@@ -158,6 +158,9 @@ class CoverObserver extends UEventObserver {
     }
 
     public void killActivity() {
+        Dotcase.ringing = false;
+        Dotcase.alarm_clock = false;
+        topActivityKeeper = false;
         if (oldBrightnessMode != -1 && oldBrightness != -1 && !needStoreOldBrightness) {
             Settings.System.putInt(mContext.getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS_MODE,
@@ -180,7 +183,7 @@ class CoverObserver extends UEventObserver {
 
         @Override
         public void run() {
-            while (Dotcase.ringing || Dotcase.alarm_clock) {
+            while ((Dotcase.ringing || Dotcase.alarm_clock) && topActivityKeeper) {
                 ActivityManager am = (ActivityManager) mContext.getSystemService(Activity.ACTIVITY_SERVICE);
                 if (!am.getRunningTasks(1).get(0).topActivity.getPackageName().equals("org.cyanogenmod.dotcase")) {
                     i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
