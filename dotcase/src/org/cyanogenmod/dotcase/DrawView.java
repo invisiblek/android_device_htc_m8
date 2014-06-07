@@ -81,7 +81,6 @@ public class DrawView extends View {
     private void drawAlarm(Canvas canvas) {
         int light = 7;
         int dark = 12;
-        int wordStarter = 2;
         int clockLength = DotcaseConstants.clockSprite.length;
         int clockElementLength = DotcaseConstants.clockSprite[0].length;
         int ringerLength = DotcaseConstants.ringerSprite.length;
@@ -110,7 +109,7 @@ public class DrawView extends View {
                 new int[clockLength][clockElementLength];
         int[][] mRingerSprite =
                 new int[ringerLength][ringerElementLength];
-        int[][] mWordArray = DotcaseConstants.snoozeArray;
+        int[][] mWordArray;
 
         for (int i = 0; i < ringerLength; i++) {
             for (int j = 0; j < ringerElementLength; j++) {
@@ -128,9 +127,10 @@ public class DrawView extends View {
         }
 
         if (ringCounter / 6 > 0) {
-            mWordArray = DotcaseConstants.sleepArray;
-            wordStarter = wordStarter + 2;
+            mWordArray = DotcaseConstants.alarmCancelArray;
             Collections.reverse(Arrays.asList(mRingerSprite));
+        } else {
+            mWordArray = DotcaseConstants.snoozeArray;
         }
 
         dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 8, 1, canvas);
@@ -160,7 +160,7 @@ public class DrawView extends View {
         }
 
         dotcaseDrawSprite(mClockSprite, 7, 7, canvas);
-        dotcaseDrawSprite(mWordArray, wordStarter, 21, canvas);
+        dotcaseDrawSprite(mWordArray, 2, 21, canvas);
         dotcaseDrawSprite(mRingerSprite, 7, 28, canvas);
 
         ringCounter++;
