@@ -51,11 +51,14 @@ public class DrawView extends View {
     public void onDraw(Canvas canvas) {
         if (Dotcase.alarm_clock) {
             drawAlarm(canvas);
-        } else if (!Dotcase.ringing) {
+        } else if (Dotcase.ringing) {
+            drawNumber(canvas);
+            drawRinger(canvas);
+        } else {
             drawTime(canvas);
             Dotcase.checkNotifications();
             if (Dotcase.gmail || Dotcase.hangouts || Dotcase.mms || Dotcase.missed_call
-                              || Dotcase.twitter  || Dotcase.voicemail) {
+                              || Dotcase.twitter || Dotcase.voicemail) {
                 if (heartbeat < 3) {
                     drawNotifications(canvas);
                 } else {
@@ -69,9 +72,6 @@ public class DrawView extends View {
                 drawBattery(canvas);
                 heartbeat = 0;
             }
-        } else {
-            drawNumber(canvas);
-            drawRinger(canvas);
         }
 
         filter.addAction(DotcaseConstants.ACTION_REDRAW);
