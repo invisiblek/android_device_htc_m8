@@ -20,6 +20,8 @@
 
 package org.cyanogenmod.dotcase;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -107,6 +109,8 @@ class CoverObserver extends UEventObserver {
                     Dotcase.ringCounter = 0;
                     Dotcase.phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                     Dotcase.ringing = true;
+                    Dotcase.reset_timer = true;
+                    new Thread(new ensureTopActivity()).start();
                 } else {
                     Dotcase.phoneNumber = "";
                     Dotcase.ringing = false;
@@ -129,6 +133,7 @@ class CoverObserver extends UEventObserver {
                 mContext.sendBroadcast(intent);
                 i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                new Thread(new ensureTopActivity()).start();
             }
         }
     };
@@ -168,5 +173,24 @@ class CoverObserver extends UEventObserver {
             i.setAction(DotcaseConstants.ACTION_KILL_ACTIVITY);
             mContext.sendBroadcast(i);
         } catch (Exception ex) {}
+    }
+
+    private class ensureTopActivity implements Runnable {
+        Intent i = new Intent();
+
+        @Override
+        public void run() {
+            while (Dotcase.ringing || Dotcase.alarm_clock) {
+                ActivityManager am = (ActivityManager) mContext.getSystemService(Activity.ACTIVITY_SERVICE);
+                if (!am.getRunningTasks(1).get(0).topActivity.getPackageName().equals("org.cyanogenmod.dotcase")) {
+                    i.setClassName("org.cyanogenmod.dotcase", "org.cyanogenmod.dotcase.Dotcase");
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(i);
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (Exception ex) {}
+            }
+        }
     }
 }
