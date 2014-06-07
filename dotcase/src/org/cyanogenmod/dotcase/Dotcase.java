@@ -173,8 +173,8 @@ public class Dotcase extends Activity
                     missed_call = true;
                 } else if (not.getPackageName().equals("com.android.mms") && !mms) {
                     mms = true;
-                } else if (not.getPackageName().equals("com.google.android.apps.googlevoice") && !voicemail) {
-                    // add other voicemail apps here (t-mo, vzw?, etc...)
+                } else if (not.getPackageName().equals("com.google.android.apps.googlevoice")
+                           && !voicemail) {
                     voicemail = true;
                 }
             }

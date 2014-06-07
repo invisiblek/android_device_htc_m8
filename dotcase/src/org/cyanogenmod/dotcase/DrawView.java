@@ -97,8 +97,12 @@ public class DrawView extends View {
             timeObj.am = true;
         }
 
-        timeObj.timeString = (timeObj.hour < 10 ? " " + Integer.toString(timeObj.hour) : Integer.toString(timeObj.hour))
-                           + ((timeObj.min < 10) ? "0" + Integer.toString(timeObj.min) : Integer.toString(timeObj.min));
+        timeObj.timeString = (timeObj.hour < 10
+                                   ? " " + Integer.toString(timeObj.hour)
+                                   : Integer.toString(timeObj.hour))
+                           + (timeObj.min < 10
+                                   ? "0" + Integer.toString(timeObj.min)
+                                   : Integer.toString(timeObj.min));
         return timeObj;
     }
 
@@ -117,7 +121,8 @@ public class DrawView extends View {
             for (int j = 0; j < ringerElementLength; j++) {
                 if (DotcaseConstants.ringerSprite[i][j] > 0) {
                     mRingerSprite[i][j] =
-                            DotcaseConstants.ringerSprite[i][j] == 3 - (ringCounter % 3) ? light : dark;
+                            DotcaseConstants.ringerSprite[i][j] == 3 - (ringCounter % 3)
+                                    ? light : dark;
                 }
             }
         }
@@ -128,15 +133,15 @@ public class DrawView extends View {
             }
         }
 
-        if (time.hour < 10) {
-            time.timeString = " " + time.timeString;
-        }
-
-        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(0)), 0, 0, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(1)), 4, 0, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(
+                time.timeString.charAt(0)), 0, 0, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(
+                time.timeString.charAt(1)), 4, 0, canvas);
         dotcaseDrawSprite(DotcaseConstants.smallTimeColon, 8, 1, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(2)), 11, 0, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(3)), 15, 0, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(
+                time.timeString.charAt(2)), 11, 0, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSmallSprite(
+                time.timeString.charAt(3)), 15, 0, canvas);
         dotcaseDrawSprite(mClockSprite, 7, 7, canvas);
 
         if (time.am) {
@@ -166,38 +171,38 @@ public class DrawView extends View {
         int x = 1;
         int y = 30;
         if (Dotcase.missed_call) {
-            dotcaseDrawSprite(DotcaseConstants.missedCallSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
-                    canvas);
+            dotcaseDrawSprite(DotcaseConstants.missedCallSprite,
+                    x + ((count % 3) * 9), y + ((count / 3) * 9), canvas);
             count++;
         }
 
         if (Dotcase.voicemail) {
-            dotcaseDrawSprite(DotcaseConstants.voicemailSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
-                    canvas);
+            dotcaseDrawSprite(DotcaseConstants.voicemailSprite,
+                    x + ((count % 3) * 9), y + ((count / 3) * 9), canvas);
             count++;
         }
 
         if (Dotcase.gmail) {
-            dotcaseDrawSprite(DotcaseConstants.gmailSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
-                    canvas);
+            dotcaseDrawSprite(DotcaseConstants.gmailSprite,
+                    x + ((count % 3) * 9), y + ((count / 3) * 9), canvas);
             count++;
         }
 
         if (Dotcase.hangouts) {
-            dotcaseDrawSprite(DotcaseConstants.hangoutsSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
-                    canvas);
+            dotcaseDrawSprite(DotcaseConstants.hangoutsSprite,
+                    x + ((count % 3) * 9), y + ((count / 3) * 9), canvas);
             count++;
         }
 
         if (Dotcase.mms) {
-            dotcaseDrawSprite(DotcaseConstants.mmsSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
-                    canvas);
+            dotcaseDrawSprite(DotcaseConstants.mmsSprite,
+                    x + ((count % 3) * 9), y + ((count / 3) * 9), canvas);
             count++;
         }
 
         if (Dotcase.twitter) {
-            dotcaseDrawSprite(DotcaseConstants.twitterSprite, x + ((count % 3) * 9), y + ((count / 3) * 9),
-                    canvas);
+            dotcaseDrawSprite(DotcaseConstants.twitterSprite,
+                    x + ((count % 3) * 9), y + ((count / 3) * 9), canvas);
         }
     }
 
@@ -222,7 +227,9 @@ public class DrawView extends View {
         for (int i = 0; i < ringerLength; i++) {
             for (int j = 0; j < ringerElementLength; j++) {
                 if (DotcaseConstants.ringerSprite[i][j] > 0) {
-                    mRingerSprite[i][j] = DotcaseConstants.ringerSprite[i][j] == 3 - (ringCounter % 3) ? light : dark;
+                    mRingerSprite[i][j] =
+                            DotcaseConstants.ringerSprite[i][j] == 3 - (ringCounter % 3)
+                                    ? light : dark;
                 }
             }
         }
@@ -303,10 +310,14 @@ public class DrawView extends View {
         }
 
         dotcaseDrawSprite(DotcaseConstants.timeColon, starter + 10, 5 + 4, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(0)), starter, 5, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(1)), starter + 5, 5, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(2)), starter + 12, 5, canvas);
-        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(3)), starter + 17, 5, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(0)),
+                starter, 5, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(1)),
+                starter + 5, 5, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(2)),
+                starter + 12, 5, canvas);
+        dotcaseDrawSprite(DotcaseConstants.getSprite(time.timeString.charAt(3)),
+                starter + 17, 5, canvas);
     }
 
     private void dotcaseDrawPixel(int x, int y, Paint paint, Canvas canvas) {
@@ -318,7 +329,8 @@ public class DrawView extends View {
                         paint);
     }
 
-    private void dotcaseDrawRect(int left, int top, int right, int bottom, int color, Canvas canvas) {
+    private void dotcaseDrawRect(int left, int top, int right,
+                                 int bottom, int color, Canvas canvas) {
         for (int x=left; x < right; x++) {
             for (int y=top; y < bottom; y++) {
                 dotcaseDrawPixel(x, y, DotcaseConstants.getPaintFromNumber(color), canvas);
@@ -329,7 +341,8 @@ public class DrawView extends View {
     private void dotcaseDrawSprite(int[][] sprite, int x, int y, Canvas canvas) {
         for (int i=0; i < sprite.length; i++) {
             for (int j=0; j < sprite[0].length; j++) {
-                dotcaseDrawPixel(x + j, y + i, DotcaseConstants.getPaintFromNumber(sprite[i][j]), canvas);
+                dotcaseDrawPixel(x + j, y + i,
+                        DotcaseConstants.getPaintFromNumber(sprite[i][j]), canvas);
             }
         }
     }
