@@ -150,7 +150,7 @@ public class DrawView extends View {
             if (i < 2) {
                 dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(i)), i * 4, 0, canvas);
             } else {
-                dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(i)), i * 4 + 3, 0, canvas);
+                dotcaseDrawSprite(DotcaseConstants.getSmallSprite(time.timeString.charAt(i)), i * 4 + 2, 0, canvas);
             }
         }
 
