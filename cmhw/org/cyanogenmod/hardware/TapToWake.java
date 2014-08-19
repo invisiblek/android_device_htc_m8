@@ -24,7 +24,8 @@ public class TapToWake {
     private static boolean mEnabled = true;
 
     public static boolean isSupported() {
-        return true;
+        File f = new File(CONTROL_PATH);
+        return f.exists();
     }
 
     public static boolean isEnabled()  {
