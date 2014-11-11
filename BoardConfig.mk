@@ -149,7 +149,8 @@ WIFI_DRIVER_FW_PATH_AP := "ap"
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
-    device/htc/m8/sepolicy
+    device/htc/m8/sepolicy \
+    device/qcom/common/sepolicy
 
 BOARD_SEPOLICY_UNION += \
     app.te \
